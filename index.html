@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BazaarX — Pakistan's Smartest Shopping Destination</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --brand:#E8321A;--brand-dark:#B82310;--brand-light:#FFF1EE;
+  --gold:#F59E0B;--gold-light:#FFFBEB;
+  --bg:#F7F5F2;--white:#FFFFFF;--surface:#FDFCFB;
+  --text:#1A1614;--muted:#6B6560;--hint:#A09890;
+  --border:#E8E4DF;--border-strong:#CCC8C2;
+  --success:#15803D;--success-bg:#F0FDF4;
+  --info:#1D4ED8;--info-bg:#EFF6FF;
+  --shadow:0 1px 3px rgba(0,0,0,0.08),0 1px 2px rgba(0,0,0,0.04);
+  --shadow-md:0 4px 12px rgba(0,0,0,0.10),0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg:0 10px 30px rgba(0,0,0,0.12);
+  --r:8px;--r-lg:12px;--r-xl:16px;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.6}
+
+/* ─── HEADER ─── */
+.top-bar{background:var(--brand-dark);color:#fff;font-size:12px;padding:6px 0;text-align:center;letter-spacing:.3px}
+.top-bar span{opacity:.85;margin:0 16px}
+.top-bar strong{opacity:1}
+header{background:var(--brand);position:sticky;top:0;z-index:1000;box-shadow:0 2px 8px rgba(232,50,26,.3)}
+.header-inner{max-width:1280px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:16px;height:64px}
+.logo{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#fff;text-decoration:none;letter-spacing:-1px;white-space:nowrap}
+.logo span{color:#FFD4CC}
+.search-bar{flex:1;display:flex;background:#fff;border-radius:var(--r);overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+.search-bar input{flex:1;border:none;padding:10px 16px;font-size:14px;font-family:'DM Sans',sans-serif;outline:none;color:var(--text)}
+.search-bar select{border:none;border-left:1px solid var(--border);padding:10px 8px;font-size:12px;color:var(--muted);background:#fff;outline:none;cursor:pointer}
+.search-bar button{background:var(--brand);border:none;padding:10px 18px;cursor:pointer;color:#fff;font-size:16px;transition:background .2s}
+.search-bar button:hover{background:var(--brand-dark)}
+.header-actions{display:flex;align-items:center;gap:4px}
+.hdr-btn{display:flex;flex-direction:column;align-items:center;gap:2px;background:none;border:none;color:#fff;cursor:pointer;padding:8px 12px;border-radius:var(--r);font-family:'DM Sans',sans-serif;font-size:11px;transition:background .2s;text-decoration:none}
+.hdr-btn:hover{background:rgba(255,255,255,.15)}
+.hdr-btn .icon{font-size:20px}
+.cart-badge{position:relative;display:inline-block}
+.badge{position:absolute;top:-6px;right:-8px;background:#FFD700;color:#1A1614;font-size:10px;font-weight:700;border-radius:999px;min-width:18px;height:18px;display:flex;align-items:center;justify-content:center;padding:0 4px}
+
+/* ─── NAV ─── */
+nav{background:#fff;border-bottom:1px solid var(--border);position:sticky;top:64px;z-index:999}
+.nav-inner{max-width:1280px;margin:0 auto;padding:0 20px;display:flex;align-items:center;gap:0;height:42px}
+.nav-link{display:flex;align-items:center;gap:6px;padding:0 14px;height:100%;font-size:13px;font-weight:500;color:var(--muted);text-decoration:none;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif}
+.nav-link:hover,.nav-link.active{color:var(--brand);border-bottom-color:var(--brand)}
+.nav-link .ni{font-size:15px}
+.nav-sale{color:var(--brand)!important;font-weight:600}
+
+/* ─── HERO ─── */
+.hero-section{max-width:1280px;margin:20px auto;padding:0 20px;display:grid;grid-template-columns:200px 1fr 240px;gap:16px}
+.sidebar-cats{background:#fff;border-radius:var(--r-lg);border:1px solid var(--border);overflow:hidden}
+.sidebar-cats .cat-header{padding:12px 16px;background:var(--brand);color:#fff;font-weight:600;font-size:13px}
+.cat-item{display:flex;align-items:center;gap:10px;padding:9px 16px;font-size:13px;cursor:pointer;border-bottom:1px solid var(--border);transition:background .15s;text-decoration:none;color:var(--text)}
+.cat-item:hover{background:var(--bg);color:var(--brand)}
+.cat-item .ci{font-size:17px;width:22px;text-align:center}
+.hero-banner{border-radius:var(--r-xl);overflow:hidden;position:relative;background:linear-gradient(135deg,#1A1614 0%,#2D2320 40%,#3D1F18 100%);min-height:340px;display:flex;align-items:center;padding:40px 48px;cursor:pointer}
+.hero-banner::before{content:'';position:absolute;right:0;top:0;bottom:0;width:50%;background:linear-gradient(135deg,#E8321A,#FF6B4A);clip-path:ellipse(80% 100% at 100% 50%);opacity:.9}
+.hero-content{position:relative;z-index:2;max-width:480px}
+.hero-tag{display:inline-block;background:var(--gold);color:var(--text);font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px;letter-spacing:.5px;margin-bottom:12px;text-transform:uppercase}
+.hero-title{font-family:'Syne',sans-serif;font-size:38px;font-weight:800;color:#fff;line-height:1.1;margin-bottom:8px}
+.hero-title em{color:#FFB3A5;font-style:normal}
+.hero-sub{color:rgba(255,255,255,.7);font-size:15px;margin-bottom:24px}
+.hero-cta{background:#fff;color:var(--brand);border:none;padding:12px 28px;border-radius:var(--r);font-weight:700;font-size:15px;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.hero-cta:hover{background:var(--brand-light);transform:translateY(-1px)}
+.hero-dots{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);display:flex;gap:6px}
+.hero-dot{width:6px;height:6px;border-radius:999px;background:rgba(255,255,255,.4)}
+.hero-dot.active{background:#fff;width:18px}
+.side-banners{display:flex;flex-direction:column;gap:12px}
+.mini-banner{border-radius:var(--r-lg);overflow:hidden;flex:1;position:relative;display:flex;align-items:flex-end;padding:16px;cursor:pointer;min-height:160px}
+.mini-banner.b1{background:linear-gradient(135deg,#1D4ED8,#3B82F6)}
+.mini-banner.b2{background:linear-gradient(135deg,#15803D,#22C55E)}
+.mini-banner-content{position:relative;z-index:2}
+.mini-banner-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.8);letter-spacing:.5px;text-transform:uppercase}
+.mini-banner-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;color:#fff;line-height:1.2}
+.mini-banner-off{background:rgba(255,255,255,.2);color:#fff;font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block;margin-top:6px}
+
+/* ─── FLASH SALE ─── */
+.section{max-width:1280px;margin:0 auto;padding:0 20px;margin-top:28px}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.section-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;display:flex;align-items:center;gap:10px}
+.section-title .st-icon{font-size:22px}
+.flash-badge{background:var(--brand);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:999px}
+.countdown{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.cd-unit{background:var(--text);color:#fff;font-weight:700;font-size:14px;border-radius:4px;padding:4px 8px;min-width:32px;text-align:center}
+.see-all{font-size:13px;color:var(--brand);font-weight:600;text-decoration:none;display:flex;align-items:center;gap:4px;cursor:pointer;background:none;border:none;font-family:'DM Sans',sans-serif}
+.see-all:hover{color:var(--brand-dark)}
+
+/* ─── PRODUCT GRID ─── */
+.product-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:14px}
+.product-grid-6{grid-template-columns:repeat(6,1fr)}
+.product-card{background:#fff;border-radius:var(--r-lg);border:1px solid var(--border);overflow:hidden;cursor:pointer;transition:all .2s;position:relative}
+.product-card:hover{transform:translateY(-3px);box-shadow:var(--shadow-md);border-color:var(--border-strong)}
+.product-badge{position:absolute;top:8px;left:8px;z-index:2;background:var(--brand);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:999px}
+.product-badge.gold{background:var(--gold);color:var(--text)}
+.product-badge.blue{background:#1D4ED8}
+.product-wishlist{position:absolute;top:8px;right:8px;z-index:2;background:#fff;border:1px solid var(--border);border-radius:50%;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;transition:all .2s}
+.product-wishlist:hover,.product-wishlist.wished{border-color:var(--brand);color:var(--brand)}
+.product-img{width:100%;aspect-ratio:1;object-fit:cover;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:52px;padding:16px}
+.product-info{padding:10px 12px 12px}
+.product-name{font-size:12.5px;color:var(--text);line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;height:36px;margin-bottom:6px}
+.product-price{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.price-now{font-size:15px;font-weight:700;color:var(--brand)}
+.price-old{font-size:12px;color:var(--hint);text-decoration:line-through}
+.price-off{font-size:11px;color:var(--success);font-weight:600}
+.product-meta{display:flex;align-items:center;justify-content:space-between;margin-top:6px}
+.stars{font-size:11px;color:var(--gold);letter-spacing:1px}
+.sold-count{font-size:11px;color:var(--muted)}
+.progress-bar{height:3px;background:var(--border);border-radius:999px;margin-top:8px;overflow:hidden}
+.progress-fill{height:100%;background:var(--gold);border-radius:999px}
+.sold-label{font-size:10px;color:var(--brand);font-weight:600;margin-top:3px}
+
+/* ─── CATEGORIES STRIP ─── */
+.cat-strip{max-width:1280px;margin:28px auto 0;padding:0 20px}
+.cat-strip-grid{display:grid;grid-template-columns:repeat(10,1fr);gap:10px}
+.cat-tile{background:#fff;border-radius:var(--r-lg);border:1px solid var(--border);padding:14px 8px;text-align:center;cursor:pointer;transition:all .2s;text-decoration:none;color:var(--text)}
+.cat-tile:hover{border-color:var(--brand);box-shadow:0 2px 8px rgba(232,50,26,.12);transform:translateY(-2px)}
+.cat-tile-icon{font-size:28px;display:block;margin-bottom:6px}
+.cat-tile-name{font-size:11px;font-weight:500;color:var(--muted);line-height:1.3}
+.cat-tile:hover .cat-tile-name{color:var(--brand)}
+
+/* ─── PROMOTIONAL BANNERS ─── */
+.promo-banners{max-width:1280px;margin:28px auto 0;padding:0 20px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.promo-card{border-radius:var(--r-xl);padding:24px 20px;position:relative;overflow:hidden;cursor:pointer;min-height:130px;display:flex;flex-direction:column;justify-content:center;transition:transform .2s}
+.promo-card:hover{transform:translateY(-2px)}
+.promo-card.pc1{background:linear-gradient(135deg,#7C3AED,#A855F7)}
+.promo-card.pc2{background:linear-gradient(135deg,#0369A1,#0EA5E9)}
+.promo-card.pc3{background:linear-gradient(135deg,#B45309,#F59E0B)}
+.promo-card-label{font-size:10px;font-weight:700;color:rgba(255,255,255,.75);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.promo-card-title{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#fff;line-height:1.2;margin-bottom:8px}
+.promo-card-off{background:rgba(255,255,255,.2);color:#fff;font-size:12px;font-weight:600;padding:3px 10px;border-radius:999px;display:inline-block}
+.promo-card-emoji{position:absolute;right:16px;bottom:12px;font-size:48px;opacity:.6}
+
+/* ─── BRAND STRIP ─── */
+.brand-strip{max-width:1280px;margin:28px auto 0;padding:0 20px}
+.brand-row{display:flex;gap:12px;overflow-x:auto;padding-bottom:4px}
+.brand-chip{background:#fff;border:1px solid var(--border);border-radius:var(--r);padding:8px 20px;font-size:13px;font-weight:600;color:var(--muted);white-space:nowrap;cursor:pointer;transition:all .2s;flex-shrink:0}
+.brand-chip:hover,.brand-chip.active{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
+
+/* ─── MOBILE APPS ─── */
+.app-banner{max-width:1280px;margin:28px auto 0;padding:0 20px}
+.app-inner{background:linear-gradient(135deg,#1A1614,#2D2320);border-radius:var(--r-xl);padding:32px 48px;display:flex;align-items:center;justify-content:space-between;gap:32px}
+.app-text h2{font-family:'Syne',sans-serif;font-size:28px;font-weight:700;color:#fff;margin-bottom:8px}
+.app-text p{color:rgba(255,255,255,.65);font-size:14px;max-width:400px;line-height:1.6}
+.app-btns{display:flex;gap:12px;margin-top:20px}
+.app-btn{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:var(--r-lg);padding:10px 18px;cursor:pointer;transition:background .2s}
+.app-btn:hover{background:rgba(255,255,255,.2)}
+.app-btn .ab-icon{font-size:24px}
+.app-btn-text{color:#fff}
+.ab-small{font-size:10px;opacity:.7}
+.ab-large{font-size:15px;font-weight:600}
+.app-phones{font-size:80px;display:flex;gap:8px}
+
+/* ─── FOOTER ─── */
+footer{background:var(--text);color:rgba(255,255,255,.7);margin-top:48px;padding:48px 20px 24px}
+.footer-inner{max-width:1280px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.footer-brand .logo-f{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;color:#fff;margin-bottom:12px}
+.footer-brand .logo-f span{color:#FFB3A5}
+.footer-brand p{font-size:13px;line-height:1.7;max-width:260px}
+.footer-col h4{color:#fff;font-size:14px;font-weight:600;margin-bottom:16px}
+.footer-col a,.footer-col p{display:block;font-size:13px;color:rgba(255,255,255,.6);text-decoration:none;margin-bottom:8px;cursor:pointer;transition:color .2s}
+.footer-col a:hover{color:#fff}
+.footer-bottom{border-top:1px solid rgba(255,255,255,.1);padding-top:24px;display:flex;justify-content:space-between;align-items:center;font-size:12px}
+.payment-icons{display:flex;gap:8px;font-size:22px}
+
+/* ─── CART DRAWER ─── */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1999;backdrop-filter:blur(3px)}
+.overlay.open{display:block}
+.cart-drawer{position:fixed;right:-420px;top:0;bottom:0;width:420px;background:#fff;z-index:2000;display:flex;flex-direction:column;transition:right .3s cubic-bezier(.4,0,.2,1);box-shadow:var(--shadow-lg)}
+.cart-drawer.open{right:0}
+.cart-header{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border)}
+.cart-header h3{font-family:'Syne',sans-serif;font-size:18px;font-weight:700}
+.close-btn{background:none;border:none;font-size:22px;cursor:pointer;color:var(--muted);padding:4px;border-radius:var(--r)}
+.close-btn:hover{background:var(--bg);color:var(--text)}
+.cart-items{flex:1;overflow-y:auto;padding:16px 24px}
+.cart-item{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.cart-item-img{width:64px;height:64px;border-radius:var(--r);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:28px;flex-shrink:0}
+.cart-item-info{flex:1}
+.cart-item-name{font-size:13px;font-weight:500;line-height:1.4;margin-bottom:4px}
+.cart-item-price{font-size:14px;font-weight:700;color:var(--brand)}
+.qty-ctrl{display:flex;align-items:center;gap:10px;margin-top:8px}
+.qty-btn{width:24px;height:24px;border:1px solid var(--border);border-radius:4px;background:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--text);transition:all .2s}
+.qty-btn:hover{border-color:var(--brand);color:var(--brand)}
+.qty-num{font-size:14px;font-weight:600;min-width:20px;text-align:center}
+.cart-remove{background:none;border:none;color:var(--hint);cursor:pointer;font-size:18px;padding:4px;margin-left:auto;transition:color .2s}
+.cart-remove:hover{color:var(--brand)}
+.cart-footer{padding:20px 24px;border-top:1px solid var(--border)}
+.cart-summary{margin-bottom:16px}
+.cart-row{display:flex;justify-content:space-between;font-size:13px;margin-bottom:8px;color:var(--muted)}
+.cart-row.total{font-size:16px;font-weight:700;color:var(--text);border-top:1px solid var(--border);padding-top:10px;margin-top:10px}
+.checkout-btn{width:100%;background:var(--brand);color:#fff;border:none;padding:14px;border-radius:var(--r);font-size:15px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s;margin-bottom:10px}
+.checkout-btn:hover{background:var(--brand-dark)}
+.continue-btn{width:100%;background:none;color:var(--brand);border:1px solid var(--brand);padding:11px;border-radius:var(--r);font-size:14px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.continue-btn:hover{background:var(--brand-light)}
+.empty-cart{text-align:center;padding:60px 20px;color:var(--muted)}
+.empty-cart .empty-icon{font-size:56px;margin-bottom:16px}
+.empty-cart p{font-size:15px;margin-bottom:4px;color:var(--text);font-weight:500}
+.empty-cart small{font-size:13px}
+
+/* ─── TOAST ─── */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--text);color:#fff;padding:12px 20px;border-radius:var(--r-lg);font-size:14px;font-weight:500;z-index:3000;transform:translateY(80px);opacity:0;transition:all .3s;display:flex;align-items:center;gap:10px;box-shadow:var(--shadow-lg)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast .t-icon{font-size:18px}
+
+/* ─── MOBILE BOTTOM NAV ─── */
+.mob-nav{display:none;position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--border);z-index:990;padding:8px 0}
+.mob-nav-inner{display:flex;justify-content:space-around}
+.mob-nav-btn{display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--muted);font-size:10px;cursor:pointer;padding:6px 12px;border:none;background:none;font-family:'DM Sans',sans-serif;transition:color .2s}
+.mob-nav-btn.active,.mob-nav-btn:hover{color:var(--brand)}
+.mob-nav-btn .mni{font-size:22px}
+
+/* ─── FILTER ROW ─── */
+.filter-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;overflow-x:auto;padding-bottom:4px}
+.filter-chip{display:flex;align-items:center;gap:6px;padding:6px 14px;border:1px solid var(--border);border-radius:999px;font-size:12.5px;cursor:pointer;white-space:nowrap;background:#fff;color:var(--muted);transition:all .2s;font-family:'DM Sans',sans-serif}
+.filter-chip:hover,.filter-chip.active{border-color:var(--brand);color:var(--brand);background:var(--brand-light)}
+
+/* ─── RATING STARS ─── */
+.rating-row{display:flex;align-items:center;gap:4px;font-size:12px;color:var(--muted)}
+.rating-row .stars{font-size:12px}
+.rating-count{font-size:11px;color:var(--hint)}
+
+/* ─── TABS ─── */
+.tabs{display:flex;border-bottom:2px solid var(--border);margin-bottom:20px;gap:0}
+.tab{padding:10px 20px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:all .2s;background:none;border-top:none;border-left:none;border-right:none;font-family:'DM Sans',sans-serif}
+.tab:hover{color:var(--brand)}
+.tab.active{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+
+@media(max-width:900px){
+  .hero-section{grid-template-columns:1fr}
+  .sidebar-cats{display:none}
+  .side-banners{flex-direction:row}
+  .product-grid{grid-template-columns:repeat(2,1fr)}
+  .cat-strip-grid{grid-template-columns:repeat(5,1fr)}
+  .footer-inner{grid-template-columns:1fr 1fr}
+  .promo-banners{grid-template-columns:1fr}
+  .mob-nav{display:block}
+  body{padding-bottom:72px}
+  .header-inner{gap:8px;padding:0 12px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <span>🚚 <strong>Free Delivery</strong> on orders above Rs. 999</span>
+  <span>📦 Easy <strong>30-Day Returns</strong></span>
+  <span>🔒 <strong>100% Secure</strong> Payment</span>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a href="#" class="logo">Bazaar<span>X</span></a>
+    <div class="search-bar">
+      <select>
+        <option>All</option>
+        <option>Electronics</option>
+        <option>Fashion</option>
+        <option>Home</option>
+        <option>Beauty</option>
+        <option>Sports</option>
+      </select>
+      <input type="text" id="searchInput" placeholder="Search products, brands, and categories…" />
+      <button onclick="handleSearch()">🔍</button>
+    </div>
+    <div class="header-actions">
+      <a class="hdr-btn" href="#">
+        <span class="icon">👤</span>
+        <span>Account</span>
+      </a>
+      <a class="hdr-btn" href="#">
+        <span class="icon">❤️</span>
+        <span>Wishlist</span>
+      </a>
+      <button class="hdr-btn cart-badge" onclick="toggleCart()">
+        <span class="icon">🛒</span>
+        <span>Cart</span>
+        <span class="badge" id="cartCount">0</span>
+      </button>
+      <a class="hdr-btn" href="#">
+        <span class="icon">📦</span>
+        <span>Orders</span>
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-inner">
+    <button class="nav-link active" onclick="setNavActive(this)">🏠 Home</button>
+    <button class="nav-link" onclick="setNavActive(this)">📱 Electronics</button>
+    <button class="nav-link" onclick="setNavActive(this)">👗 Fashion</button>
+    <button class="nav-link" onclick="setNavActive(this)">🏠 Home & Living</button>
+    <button class="nav-link" onclick="setNavActive(this)">💄 Beauty</button>
+    <button class="nav-link" onclick="setNavActive(this)">⚽ Sports</button>
+    <button class="nav-link" onclick="setNavActive(this)">🧸 Toys & Baby</button>
+    <button class="nav-link" onclick="setNavActive(this)">🐾 Pets</button>
+    <button class="nav-link" onclick="setNavActive(this)">🌿 Groceries</button>
+    <button class="nav-link nav-sale" onclick="setNavActive(this)">🔥 Flash Sale</button>
+    <button class="nav-link" onclick="setNavActive(this)">🏷️ Vouchers</button>
+  </div>
+</nav>
+
+<!-- HERO SECTION -->
+<div class="hero-section">
+  <!-- Sidebar Categories -->
+  <div class="sidebar-cats">
+    <div class="cat-header">All Categories</div>
+    <a class="cat-item" href="#"><span class="ci">📱</span> Mobiles & Tablets</a>
+    <a class="cat-item" href="#"><span class="ci">💻</span> Laptops & PCs</a>
+    <a class="cat-item" href="#"><span class="ci">📺</span> TVs & Electronics</a>
+    <a class="cat-item" href="#"><span class="ci">👗</span> Women's Fashion</a>
+    <a class="cat-item" href="#"><span class="ci">👔</span> Men's Fashion</a>
+    <a class="cat-item" href="#"><span class="ci">👟</span> Shoes</a>
+    <a class="cat-item" href="#"><span class="ci">💄</span> Health & Beauty</a>
+    <a class="cat-item" href="#"><span class="ci">🏠</span> Home & Kitchen</a>
+    <a class="cat-item" href="#"><span class="ci">⚽</span> Sports & Outdoor</a>
+    <a class="cat-item" href="#"><span class="ci">🧸</span> Baby & Toys</a>
+    <a class="cat-item" href="#"><span class="ci">🚗</span> Automotive</a>
+    <a class="cat-item" href="#"><span class="ci">📚</span> Books & Stationery</a>
+  </div>
+
+  <!-- Hero Banner -->
+  <div class="hero-banner" onclick="showToast('🎉 Exploring Mega Sale!')">
+    <div class="hero-content">
+      <div class="hero-tag">⚡ Mega Sale — Limited Time</div>
+      <div class="hero-title">Shop Smarter,<br><em>Save Bigger</em></div>
+      <div class="hero-sub">Up to 70% off on electronics, fashion, and more. Free delivery on all orders!</div>
+      <button class="hero-cta">Shop Now →</button>
+    </div>
+    <div class="hero-dots">
+      <div class="hero-dot active"></div>
+      <div class="hero-dot"></div>
+      <div class="hero-dot"></div>
+      <div class="hero-dot"></div>
+    </div>
+  </div>
+
+  <!-- Side Banners -->
+  <div class="side-banners">
+    <div class="mini-banner b1" onclick="showToast('📱 Exploring Mobiles!')">
+      <div class="mini-banner-content">
+        <div class="mini-banner-label">New Arrivals</div>
+        <div class="mini-banner-title">Latest Smartphones</div>
+        <div class="mini-banner-off">Up to 30% Off</div>
+      </div>
+    </div>
+    <div class="mini-banner b2" onclick="showToast('👗 Exploring Fashion!')">
+      <div class="mini-banner-content">
+        <div class="mini-banner-label">Summer Collection</div>
+        <div class="mini-banner-title">Fashion Fiesta</div>
+        <div class="mini-banner-off">From Rs. 499</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CATEGORIES STRIP -->
+<div class="cat-strip">
+  <div class="section-header">
+    <div class="section-title"><span class="st-icon">🧩</span> Shop by Category</div>
+  </div>
+  <div class="cat-strip-grid">
+    <a class="cat-tile" href="#"><span class="cat-tile-icon">📱</span><div class="cat-tile-name">Mobiles</div></a>
+    <a class="cat-tile" href="#"><span class="cat-tile-icon">💻</span><div class="cat-tile-name">Laptops</div></a>
+    <a class="cat-tile" href="#"><span class="cat-tile-icon">👗</span><div class="cat-tile-name">Women</div></a>
+    <a class="cat-tile" href="#"><span class="cat-tile-icon">👔</span><div class="cat-tile-name">Men</div></a>
+    <a class="cat-tile" href="#"><span class="cat-tile-icon">👟</span><div class="cat-tile-name">Shoes</div></a>
+    <a class="cat-tile" href="#"><span class="cat-tile-icon">💄</span><div class="cat-tile-name">Beauty</div></a>
+    <a class="cat-tile" href="#"><span class="cat-tile-icon">🏠</span><div class="cat-tile-name">Home</div></a>
+    <a class="cat-tile" href="#"><span class="cat-tile-icon">⚽</span><div class="cat-tile-name">Sports</div></a>
+    <a class="cat-tile" href="#"><span class="cat-tile-icon">🧸</span><div class="cat-tile-name">Baby</div></a>
+    <a class="cat-tile" href="#"><span class="cat-tile-icon">🌿</span><div class="cat-tile-name">Grocery</div></a>
+  </div>
+</div>
+
+<!-- FLASH SALE -->
+<div class="section" style="margin-top:32px">
+  <div class="section-header">
+    <div class="section-title">
+      <span class="st-icon">⚡</span> Flash Sale
+      <span class="flash-badge">LIVE</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:16px">
+      <div class="countdown">
+        Ends in: <span class="cd-unit" id="cd-h">02</span> : <span class="cd-unit" id="cd-m">47</span> : <span class="cd-unit" id="cd-s">33</span>
+      </div>
+      <button class="see-all" onclick="showToast('📦 Showing all flash sale items')">See All →</button>
+    </div>
+  </div>
+  <div class="filter-row">
+    <button class="filter-chip active" onclick="filterChip(this)">All</button>
+    <button class="filter-chip" onclick="filterChip(this)">📱 Mobiles</button>
+    <button class="filter-chip" onclick="filterChip(this)">💻 Laptops</button>
+    <button class="filter-chip" onclick="filterChip(this)">📺 TVs</button>
+    <button class="filter-chip" onclick="filterChip(this)">👗 Fashion</button>
+    <button class="filter-chip" onclick="filterChip(this)">🏠 Home</button>
+  </div>
+  <div class="product-grid" id="flashGrid"></div>
+</div>
+
+<!-- PROMO BANNERS -->
+<div class="promo-banners">
+  <div class="promo-card pc1" onclick="showToast('💜 Exploring Super Vouchers!')">
+    <div class="promo-card-label">Exclusive Offer</div>
+    <div class="promo-card-title">Super Vouchers Up For Grabs</div>
+    <div class="promo-card-off">Save up to Rs. 2000</div>
+    <div class="promo-card-emoji">🎟️</div>
+  </div>
+  <div class="promo-card pc2" onclick="showToast('💙 Exploring BazaarX Mall!')">
+    <div class="promo-card-label">Official Stores</div>
+    <div class="promo-card-title">BazaarX Mall — 100% Authentic</div>
+    <div class="promo-card-off">Verified Brands Only</div>
+    <div class="promo-card-emoji">🏪</div>
+  </div>
+  <div class="promo-card pc3" onclick="showToast('🔐 Exploring BazaarX Pay!')">
+    <div class="promo-card-label">Digital Wallet</div>
+    <div class="promo-card-title">BazaarX Pay — Fast & Safe</div>
+    <div class="promo-card-off">5% Cashback on every order</div>
+    <div class="promo-card-emoji">💳</div>
+  </div>
+</div>
+
+<!-- BRAND STRIP -->
+<div class="brand-strip">
+  <div class="section-header">
+    <div class="section-title"><span class="st-icon">🏷️</span> Top Brands</div>
+    <button class="see-all" onclick="showToast('Exploring all brands')">All Brands →</button>
+  </div>
+  <div class="brand-row">
+    <button class="brand-chip active" onclick="brandChip(this)">All Brands</button>
+    <button class="brand-chip" onclick="brandChip(this)">Samsung</button>
+    <button class="brand-chip" onclick="brandChip(this)">Apple</button>
+    <button class="brand-chip" onclick="brandChip(this)">Xiaomi</button>
+    <button class="brand-chip" onclick="brandChip(this)">Haier</button>
+    <button class="brand-chip" onclick="brandChip(this)">Dawlance</button>
+    <button class="brand-chip" onclick="brandChip(this)">Nike</button>
+    <button class="brand-chip" onclick="brandChip(this)">Adidas</button>
+    <button class="brand-chip" onclick="brandChip(this)">Sapphire</button>
+    <button class="brand-chip" onclick="brandChip(this)">Gul Ahmed</button>
+    <button class="brand-chip" onclick="brandChip(this)">L'Oréal</button>
+    <button class="brand-chip" onclick="brandChip(this)">HP</button>
+    <button class="brand-chip" onclick="brandChip(this)">Dell</button>
+  </div>
+</div>
+
+<!-- RECOMMENDED PRODUCTS -->
+<div class="section" style="margin-top:28px">
+  <div class="section-header">
+    <div class="section-title"><span class="st-icon">✨</span> Recommended For You</div>
+    <button class="see-all" onclick="showToast('📦 Loading more recommendations')">See All →</button>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab(this,'rec')">Just For You</button>
+    <button class="tab" onclick="switchTab(this,'new')">New Arrivals</button>
+    <button class="tab" onclick="switchTab(this,'top')">Top Sellers</button>
+    <button class="tab" onclick="switchTab(this,'near')">Near You</button>
+  </div>
+  <div class="product-grid product-grid-6" id="recGrid"></div>
+</div>
+
+<!-- APP BANNER -->
+<div class="app-banner">
+  <div class="app-inner">
+    <div class="app-text">
+      <h2>Shop on the Go with BazaarX App</h2>
+      <p>Get exclusive app-only deals, track your orders in real-time, and enjoy a seamless shopping experience right from your pocket.</p>
+      <div class="app-btns">
+        <div class="app-btn" onclick="showToast('📱 Redirecting to Google Play')">
+          <span class="ab-icon">🤖</span>
+          <div class="app-btn-text">
+            <div class="ab-small">GET IT ON</div>
+            <div class="ab-large">Google Play</div>
+          </div>
+        </div>
+        <div class="app-btn" onclick="showToast('🍎 Redirecting to App Store')">
+          <span class="ab-icon">🍎</span>
+          <div class="app-btn-text">
+            <div class="ab-small">DOWNLOAD ON THE</div>
+            <div class="ab-large">App Store</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="app-phones">📱📲</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div class="logo-f">Bazaar<span>X</span></div>
+      <p>Pakistan's smartest shopping destination. Find everything you love at prices you'll adore, delivered to your doorstep.</p>
+      <div style="margin-top:16px;display:flex;gap:12px;font-size:22px">
+        <span style="cursor:pointer" onclick="showToast('📘 Opening Facebook')">📘</span>
+        <span style="cursor:pointer" onclick="showToast('📸 Opening Instagram')">📸</span>
+        <span style="cursor:pointer" onclick="showToast('🐦 Opening Twitter')">🐦</span>
+        <span style="cursor:pointer" onclick="showToast('▶️ Opening YouTube')">▶️</span>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>About BazaarX</h4>
+      <a href="#">About Us</a>
+      <a href="#">Careers</a>
+      <a href="#">Press & Media</a>
+      <a href="#">Affiliate Program</a>
+      <a href="#">BazaarX Mall</a>
+      <a href="#">Seller Center</a>
+    </div>
+    <div class="footer-col">
+      <h4>Customer Care</h4>
+      <a href="#">Help Center</a>
+      <a href="#">Track My Order</a>
+      <a href="#">Return Policy</a>
+      <a href="#">Report a Product</a>
+      <a href="#">Contact Us</a>
+      <a href="#">BazaarX Pay Help</a>
+    </div>
+    <div class="footer-col">
+      <h4>Payment Methods</h4>
+      <div class="payment-icons">💳 🏦 📱 💵</div>
+      <p style="margin-top:12px">Jazz Cash, EasyPaisa, Visa, Mastercard, Bank Transfer & COD</p>
+      <h4 style="margin-top:20px">Secure Shopping</h4>
+      <p>🔒 SSL Encrypted<br>✅ Buyer Protection</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2025 BazaarX. All Rights Reserved.</span>
+    <span>Privacy Policy · Terms & Conditions · Cookie Policy</span>
+  </div>
+</footer>
+
+<!-- CART DRAWER -->
+<div class="overlay" id="overlay" onclick="toggleCart()"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-header">
+    <h3>🛒 My Cart (<span id="cartItemCount">0</span>)</h3>
+    <button class="close-btn" onclick="toggleCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="empty-cart">
+      <div class="empty-icon">🛒</div>
+      <p>Your cart is empty</p>
+      <small>Add items to get started shopping!</small>
+    </div>
+  </div>
+  <div class="cart-footer" id="cartFooter" style="display:none">
+    <div class="cart-summary">
+      <div class="cart-row"><span>Subtotal</span><span id="cartSubtotal">Rs. 0</span></div>
+      <div class="cart-row"><span>Delivery</span><span style="color:var(--success)">FREE</span></div>
+      <div class="cart-row"><span>Voucher Discount</span><span style="color:var(--success)">- Rs. 0</span></div>
+      <div class="cart-row total"><span>Total</span><span id="cartTotal" style="color:var(--brand)">Rs. 0</span></div>
+    </div>
+    <button class="checkout-btn" onclick="showToast('🎉 Proceeding to checkout!')">Proceed to Checkout →</button>
+    <button class="continue-btn" onclick="toggleCart()">Continue Shopping</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="t-icon">✅</span>
+  <span id="toastMsg">Done!</span>
+</div>
+
+<!-- MOBILE NAV -->
+<div class="mob-nav">
+  <div class="mob-nav-inner">
+    <button class="mob-nav-btn active"><span class="mni">🏠</span>Home</button>
+    <button class="mob-nav-btn"><span class="mni">🔍</span>Search</button>
+    <button class="mob-nav-btn" onclick="toggleCart()"><span class="mni">🛒</span>Cart</button>
+    <button class="mob-nav-btn"><span class="mni">❤️</span>Wishlist</button>
+    <button class="mob-nav-btn"><span class="mni">👤</span>Account</button>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───
+const flashProducts = [
+  {id:1,name:"Samsung Galaxy A54 5G 128GB",emoji:"📱",price:89999,old:129999,off:31,rating:4.5,sold:2847,progress:78,badge:"HOT"},
+  {id:2,name:"Xiaomi Redmi Note 13 Pro",emoji:"📱",price:59999,old:79999,off:25,rating:4.3,sold:1920,progress:62,badge:""},
+  {id:3,name:"Apple AirPods Pro 2nd Gen",emoji:"🎧",price:64999,old:89999,off:28,rating:4.8,sold:934,progress:45,badge:"MALL"},
+  {id:4,name:"Logitech MX Master 3 Wireless Mouse",emoji:"🖱️",price:18999,old:26999,off:30,rating:4.7,sold:3211,progress:89,badge:"HOT"},
+  {id:5,name:"Haier 43 Inch 4K Smart TV",emoji:"📺",price:74999,old:109999,off:32,rating:4.4,sold:672,progress:38,badge:""},
+];
+const recProducts = [
+  {id:6,name:"Nike Air Max 270 Running Shoes",emoji:"👟",price:22999,old:32999,off:30,rating:4.6,sold:5621,progress:0,badge:""},
+  {id:7,name:"Sapphire Lawn 3-Piece Embroidered",emoji:"👗",price:5499,old:7999,off:31,rating:4.2,sold:8890,progress:0,badge:"SALE"},
+  {id:8,name:"HP Victus Gaming Laptop 15.6\"",emoji:"💻",price:189999,old:249999,off:24,rating:4.5,sold:421,progress:0,badge:"MALL"},
+  {id:9,name:"L'Oréal Paris Revitalift Serum",emoji:"💄",price:3999,old:5499,off:27,rating:4.4,sold:12340,progress:0,badge:""},
+  {id:10,name:"Adidas Ultraboost Light Sneakers",emoji:"👟",price:26999,old:36999,off:27,rating:4.7,sold:2100,progress:0,badge:""},
+  {id:11,name:"Instant Pot Duo 7-in-1 Pressure Cooker",emoji:"🍲",price:19999,old:27999,off:29,rating:4.6,sold:3400,progress:0,badge:""},
+  {id:12,name:"OnePlus Watch 2 Smartwatch",emoji:"⌚",price:44999,old:59999,off:25,rating:4.3,sold:786,progress:0,badge:"NEW"},
+  {id:13,name:"Gul Ahmed Summer Lawn Collection",emoji:"👚",price:3299,old:4999,off:34,rating:4.1,sold:15600,progress:0,badge:""},
+  {id:14,name:"JBL Flip 6 Portable Speaker",emoji:"🔊",price:21999,old:29999,off:27,rating:4.8,sold:4520,progress:0,badge:""},
+  {id:15,name:"PlayStation DualSense Controller",emoji:"🎮",price:18999,old:24999,off:24,rating:4.9,sold:1234,progress:0,badge:"MALL"},
+  {id:16,name:"Dawlance 1.5 Ton Inverter AC",emoji:"❄️",price:149999,old:199999,off:25,rating:4.5,sold:310,progress:0,badge:""},
+  {id:17,name:"Organic Pakistan Desi Ghee 1KG",emoji:"🫙",price:2199,old:2999,off:27,rating:4.6,sold:22100,progress:0,badge:""},
+];
+
+let cart = {};
+
+function formatPrice(p){return "Rs. "+p.toLocaleString('en-PK')}
+
+function makeStars(r){
+  const full=Math.floor(r);const half=r%1>=0.5;
+  let s='';for(let i=0;i<full;i++)s+='★';
+  if(half)s+='½';
+  return s;
+}
+
+function renderProductCard(p, showProgress=false){
+  const wished = false;
+  const badgeHTML = p.badge ? `<div class="product-badge${p.badge==='MALL'?' blue':p.badge==='HOT'?' ':p.badge==='NEW'?' gold':''}">${p.badge}</div>` : '';
+  const progressHTML = showProgress ? `<div class="progress-bar"><div class="progress-fill" style="width:${p.progress}%"></div></div><div class="sold-label">🔥 ${p.progress}% claimed</div>` : '';
+  return `
+    <div class="product-card" onclick="openProduct(${p.id})">
+      ${badgeHTML}
+      <div class="product-wishlist" onclick="event.stopPropagation();toggleWish(this)" aria-label="Wishlist">♡</div>
+      <div class="product-img">${p.emoji}</div>
+      <div class="product-info">
+        <div class="product-name">${p.name}</div>
+        <div class="product-price">
+          <span class="price-now">${formatPrice(p.price)}</span>
+          <span class="price-old">${formatPrice(p.old)}</span>
+          <span class="price-off">-${p.off}%</span>
+        </div>
+        ${progressHTML}
+        <div class="product-meta">
+          <div class="rating-row">
+            <span class="stars" style="color:var(--gold)">${makeStars(p.rating)}</span>
+            <span class="rating-count">(${p.sold.toLocaleString()})</span>
+          </div>
+          <button onclick="event.stopPropagation();addToCart(${p.id})" style="background:var(--brand);color:#fff;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;font-weight:600;font-family:'DM Sans',sans-serif;transition:background .2s" onmouseover="this.style.background='var(--brand-dark)'" onmouseout="this.style.background='var(--brand)'">+ Cart</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function renderGrids(){
+  document.getElementById('flashGrid').innerHTML = flashProducts.map(p=>renderProductCard(p,true)).join('');
+  document.getElementById('recGrid').innerHTML = recProducts.map(p=>renderProductCard(p,false)).join('');
+}
+
+// ─── CART ───
+const allProducts = [...flashProducts,...recProducts];
+
+function addToCart(id){
+  const p = allProducts.find(x=>x.id===id);
+  if(!p)return;
+  cart[id] = cart[id] ? {...cart[id],qty:cart[id].qty+1} : {...p,qty:1};
+  updateCartUI();
+  showToast(`✅ "${p.name.substring(0,30)}…" added to cart!`);
+}
+
+function removeFromCart(id){
+  delete cart[id];
+  updateCartUI();
+}
+
+function changeQty(id,delta){
+  if(!cart[id])return;
+  cart[id].qty += delta;
+  if(cart[id].qty <= 0) delete cart[id];
+  updateCartUI();
+}
+
+function updateCartUI(){
+  const items = Object.values(cart);
+  const total = items.reduce((s,i)=>s+i.price*i.qty,0);
+  const count = items.reduce((s,i)=>s+i.qty,0);
+  document.getElementById('cartCount').textContent=count;
+  document.getElementById('cartItemCount').textContent=count;
+  const footer=document.getElementById('cartFooter');
+  const ci=document.getElementById('cartItems');
+  if(items.length===0){
+    ci.innerHTML='<div class="empty-cart"><div class="empty-icon">🛒</div><p>Your cart is empty</p><small>Add items to get started shopping!</small></div>';
+    footer.style.display='none';
+  } else {
+    footer.style.display='block';
+    ci.innerHTML=items.map(i=>`
+      <div class="cart-item">
+        <div class="cart-item-img">${i.emoji}</div>
+        <div class="cart-item-info">
+          <div class="cart-item-name">${i.name}</div>
+          <div class="cart-item-price">${formatPrice(i.price)}</div>
+          <div class="qty-ctrl">
+            <button class="qty-btn" onclick="changeQty(${i.id},-1)">−</button>
+            <span class="qty-num">${i.qty}</span>
+            <button class="qty-btn" onclick="changeQty(${i.id},1)">+</button>
+          </div>
+        </div>
+        <button class="cart-remove" onclick="removeFromCart(${i.id})" title="Remove">🗑️</button>
+      </div>`).join('');
+    document.getElementById('cartSubtotal').textContent=formatPrice(total);
+    document.getElementById('cartTotal').textContent=formatPrice(total);
+  }
+}
+
+function toggleCart(){
+  const d=document.getElementById('cartDrawer');
+  const o=document.getElementById('overlay');
+  d.classList.toggle('open');
+  o.classList.toggle('open');
+}
+
+// ─── UI HELPERS ───
+function openProduct(id){
+  const p=allProducts.find(x=>x.id===id);
+  if(p) showToast(`👁️ Opening: ${p.name.substring(0,40)}…`);
+}
+
+function toggleWish(btn){
+  btn.classList.toggle('wished');
+  btn.textContent=btn.classList.contains('wished')?'❤️':'♡';
+  showToast(btn.classList.contains('wished')?'❤️ Added to Wishlist!':'💔 Removed from Wishlist');
+}
+
+let toastTimer;
+function showToast(msg){
+  clearTimeout(toastTimer);
+  const t=document.getElementById('toast');
+  document.getElementById('toastMsg').textContent=msg;
+  t.classList.add('show');
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+function setNavActive(el){
+  document.querySelectorAll('.nav-link').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function filterChip(el){
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  showToast('🔍 Filtering: '+el.textContent);
+}
+
+function brandChip(el){
+  document.querySelectorAll('.brand-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function switchTab(el,key){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function handleSearch(){
+  const q=document.getElementById('searchInput').value.trim();
+  if(q) showToast('🔍 Searching for: "'+q+'"');
+}
+
+document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')handleSearch()});
+
+// ─── COUNTDOWN ───
+let secs=9837;
+function tick(){
+  const h=Math.floor(secs/3600);
+  const m=Math.floor((secs%3600)/60);
+  const s=secs%60;
+  document.getElementById('cd-h').textContent=String(h).padStart(2,'0');
+  document.getElementById('cd-m').textContent=String(m).padStart(2,'0');
+  document.getElementById('cd-s').textContent=String(s).padStart(2,'0');
+  if(secs>0)secs--;
+}
+setInterval(tick,1000);
+tick();
+
+// ─── INIT ───
+renderGrids();
+</script>
+</body>
+</html>
