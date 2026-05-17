@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BazaarX — My Account</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --brand:#E8321A;--brand-dark:#B82310;--brand-light:#FFF1EE;
+  --gold:#F59E0B;--gold-light:#FFFBEB;
+  --bg:#F7F5F2;--white:#FFFFFF;
+  --text:#1A1614;--muted:#6B6560;--hint:#A09890;
+  --border:#E8E4DF;--border-strong:#CCC8C2;
+  --success:#15803D;--success-bg:#F0FDF4;
+  --danger:#DC2626;--danger-bg:#FEF2F2;
+  --info:#1D4ED8;--info-bg:#EFF6FF;
+  --r:8px;--r-lg:12px;--r-xl:16px;--r-2xl:24px;
+  --shadow:0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.10);
+  --shadow-lg:0 10px 40px rgba(0,0,0,0.15);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:15px;line-height:1.6;min-height:100vh}
+
+/* LOADING SCREEN */
+#loadingScreen{position:fixed;inset:0;background:#fff;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px}
+#loadingScreen .logo{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:var(--brand)}
+#loadingScreen .logo span{color:#FFD4CC}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* HEADER */
+header{background:var(--brand);position:sticky;top:0;z-index:100;box-shadow:0 2px 8px rgba(232,50,26,.3)}
+.header-inner{max-width:1100px;margin:0 auto;padding:0 16px;height:56px;display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#fff;letter-spacing:-1px;cursor:pointer;text-decoration:none}
+.logo span{color:#FFD4CC}
+.hdr-right{display:flex;align-items:center;gap:6px}
+.hdr-btn{background:#fff;color:var(--brand);border:none;padding:6px 14px;border-radius:var(--r);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s}
+.hdr-btn:hover{background:var(--brand-light)}
+.hdr-link{color:rgba(255,255,255,.85);font-size:13px;padding:6px 10px;border-radius:var(--r);border:none;background:none;cursor:pointer;font-family:'DM Sans',sans-serif}
+.hdr-link:hover{background:rgba(255,255,255,.15)}
+
+/* PAGES */
+.page{display:none;min-height:calc(100vh - 56px)}
+.page.active{display:block}
+
+/* ══════ AUTH PAGE ══════ */
+.auth-wrap{min-height:calc(100vh - 56px);display:flex;align-items:center;justify-content:center;padding:24px 16px;background:linear-gradient(135deg,#1A1614 0%,#2D2320 50%,#3D1F18 100%)}
+.auth-card{background:#fff;border-radius:var(--r-2xl);box-shadow:var(--shadow-lg);width:420px;max-width:100%;overflow:hidden}
+.auth-top{background:linear-gradient(135deg,var(--brand),#FF6B4A);padding:24px;text-align:center}
+.auth-top .ai{font-size:36px;margin-bottom:6px}
+.auth-top h2{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:#fff;margin-bottom:2px}
+.auth-top p{color:rgba(255,255,255,.75);font-size:12px}
+.auth-body{padding:24px}
+.auth-tabs{display:flex;background:var(--bg);border-radius:var(--r-lg);padding:3px;margin-bottom:20px}
+.auth-tab{flex:1;padding:8px;border-radius:var(--r);font-size:13px;font-weight:600;cursor:pointer;border:none;background:none;font-family:'DM Sans',sans-serif;color:var(--muted);transition:all .2s;text-align:center}
+.auth-tab.active{background:#fff;color:var(--brand);box-shadow:var(--shadow)}
+.form-group{margin-bottom:14px}
+.form-label{display:block;font-size:11px;font-weight:600;color:var(--muted);margin-bottom:5px;letter-spacing:.3px;text-transform:uppercase}
+.form-input,.form-select{width:100%;border:1.5px solid var(--border-strong);border-radius:var(--r-lg);padding:10px 14px;font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border .2s;background:#fff}
+.form-input:focus,.form-select:focus{border-color:var(--brand)}
+.form-input::placeholder{color:var(--hint)}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.auth-btn{width:100%;background:var(--brand);color:#fff;border:none;padding:12px;border-radius:var(--r-lg);font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.auth-btn:hover{background:var(--brand-dark)}
+.auth-btn:disabled{opacity:.6;cursor:not-allowed}
+.auth-error{background:var(--danger-bg);border:1px solid rgba(220,38,38,.2);border-radius:var(--r);padding:9px 12px;color:var(--danger);font-size:12px;margin-bottom:12px;display:none}
+.auth-success{background:var(--success-bg);border:1px solid #BBF7D0;border-radius:var(--r);padding:9px 12px;color:var(--success);font-size:12px;margin-bottom:12px;display:none}
+.auth-switch{text-align:center;margin-top:14px;font-size:13px;color:var(--muted)}
+.auth-switch a{color:var(--brand);font-weight:600;cursor:pointer}
+.forgot-link{text-align:right;display:block;font-size:12px;color:var(--brand);cursor:pointer;margin-top:-8px;margin-bottom:12px}
+.divider{display:flex;align-items:center;gap:10px;margin:16px 0;color:var(--hint);font-size:12px}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ══════ ACCOUNT PAGE ══════ */
+.account-wrap{max-width:1100px;margin:0 auto;padding:20px 16px 60px;display:grid;grid-template-columns:240px 1fr;gap:20px}
+
+/* SIDEBAR */
+.sidebar{display:flex;flex-direction:column;gap:12px}
+.user-card{background:#fff;border-radius:var(--r-xl);border:1px solid var(--border);padding:18px;text-align:center;box-shadow:var(--shadow)}
+.user-avatar{width:64px;height:64px;border-radius:50%;background:linear-gradient(135deg,var(--brand),#FF6B4A);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:24px;font-weight:700;color:#fff;margin:0 auto 10px}
+.user-name{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:2px}
+.user-email{font-size:11px;color:var(--muted);margin-bottom:8px;word-break:break-all}
+.user-badge{display:inline-flex;align-items:center;gap:4px;background:var(--gold-light);border:1px solid rgba(245,158,11,.3);color:#B45309;font-size:10px;font-weight:700;padding:2px 8px;border-radius:999px}
+.sidebar-menu{background:#fff;border-radius:var(--r-xl);border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow)}
+.menu-item{display:flex;align-items:center;gap:10px;padding:11px 14px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif;transition:all .2s;border-left:3px solid transparent;border-bottom:1px solid var(--border)}
+.menu-item:last-child{border-bottom:none}
+.menu-item:hover{background:var(--bg);color:var(--text)}
+.menu-item.active{color:var(--brand);background:var(--brand-light);border-left-color:var(--brand)}
+.menu-item .mi{font-size:16px;width:20px;text-align:center}
+.menu-item.danger{color:var(--danger)}
+.menu-item.danger:hover{background:var(--danger-bg)}
+
+/* MAIN */
+.main-content{}
+.section{display:none}
+.section.active{display:block}
+.card{background:#fff;border-radius:var(--r-xl);border:1px solid var(--border);padding:20px;margin-bottom:16px;box-shadow:var(--shadow)}
+.card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.card-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px}
+.card-btn{background:var(--brand);color:#fff;border:none;padding:7px 14px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:background .2s}
+.card-btn:hover{background:var(--brand-dark)}
+.card-btn.outline{background:none;border:1px solid var(--border);color:var(--muted)}
+.card-btn.outline:hover{border-color:var(--brand);color:var(--brand)}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.stat-box{background:#fff;border-radius:var(--r-lg);border:1px solid var(--border);padding:14px;text-align:center;box-shadow:var(--shadow)}
+.stat-icon{font-size:22px;margin-bottom:4px}
+.stat-val{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:var(--brand)}
+.stat-lbl{font-size:11px;color:var(--muted)}
+
+/* ORDERS */
+.order-card{border:1px solid var(--border);border-radius:var(--r-lg);margin-bottom:10px;overflow:hidden}
+.order-head{background:var(--bg);padding:10px 14px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.order-id{font-weight:700;font-size:13px;color:var(--brand)}
+.order-date{font-size:11px;color:var(--muted)}
+.order-body{padding:12px 14px}
+.order-item{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.order-item:last-child{margin-bottom:0}
+.oi-img{width:40px;height:40px;border-radius:var(--r);background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:20px;border:1px solid var(--border);flex-shrink:0}
+.oi-name{font-size:13px;font-weight:500;flex:1}
+.oi-price{font-size:13px;font-weight:700;color:var(--brand)}
+.order-foot{display:flex;align-items:center;justify-content:space-between;padding-top:10px;border-top:1px solid var(--border);margin-top:10px;flex-wrap:wrap;gap:8px}
+.order-total{font-size:13px;font-weight:700}
+.order-btns{display:flex;gap:6px;flex-wrap:wrap}
+.o-btn{padding:5px 12px;border-radius:var(--r);font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid var(--border);background:#fff;color:var(--muted);transition:all .2s}
+.o-btn:hover{border-color:var(--brand);color:var(--brand)}
+.o-btn.primary{background:var(--brand);color:#fff;border-color:var(--brand)}
+.o-btn.primary:hover{background:var(--brand-dark)}
+
+/* STATUS BADGES */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:3px 8px;border-radius:999px;font-size:10px;font-weight:700}
+.badge.delivered{background:var(--success-bg);color:var(--success)}
+.badge.shipped{background:var(--info-bg);color:var(--info)}
+.badge.processing{background:#FFFBEB;color:var(--gold)}
+.badge.cancelled{background:var(--danger-bg);color:var(--danger)}
+.badge.pending{background:#FFFBEB;color:var(--gold)}
+
+/* WISHLIST */
+.wish-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.wish-card{border:1px solid var(--border);border-radius:var(--r-lg);overflow:hidden;background:#fff;transition:all .2s}
+.wish-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.wish-img{aspect-ratio:1;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:40px;position:relative}
+.wish-remove{position:absolute;top:6px;right:6px;background:#fff;border:1px solid var(--border);border-radius:50%;width:24px;height:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:12px;transition:all .2s}
+.wish-remove:hover{border-color:var(--danger);color:var(--danger)}
+.wish-info{padding:8px 10px}
+.wish-name{font-size:11px;font-weight:500;margin-bottom:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wish-price{font-size:13px;font-weight:700;color:var(--brand);margin-bottom:6px}
+.wish-btn{width:100%;background:var(--brand);color:#fff;border:none;padding:6px;border-radius:var(--r);font-size:11px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif}
+.wish-btn:hover{background:var(--brand-dark)}
+
+/* PROFILE FORM */
+.profile-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.save-btn{background:var(--brand);color:#fff;border:none;padding:10px 24px;border-radius:var(--r-lg);font-size:14px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all .2s;margin-top:4px}
+.save-btn:hover{background:var(--brand-dark)}
+
+/* ADDRESSES */
+.addr-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.addr-card{border:1.5px solid var(--border);border-radius:var(--r-lg);padding:14px;position:relative;transition:border .2s}
+.addr-card.default{border-color:var(--brand);background:var(--brand-light)}
+.addr-default-badge{position:absolute;top:-9px;left:10px;background:var(--brand);color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:999px}
+.addr-type{font-size:10px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px}
+.addr-name{font-size:13px;font-weight:700;margin-bottom:3px}
+.addr-detail{font-size:12px;color:var(--muted);line-height:1.5}
+.addr-actions{display:flex;gap:6px;margin-top:10px}
+.a-btn{padding:4px 10px;border-radius:var(--r);font-size:11px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--muted);font-family:'DM Sans',sans-serif;transition:all .2s;font-weight:500}
+.a-btn:hover{border-color:var(--brand);color:var(--brand)}
+.a-btn.danger:hover{border-color:var(--danger);color:var(--danger)}
+.add-addr{border:2px dashed var(--border);border-radius:var(--r-lg);padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;cursor:pointer;transition:all .2s;text-align:center;min-height:120px}
+.add-addr:hover{border-color:var(--brand);background:var(--brand-light)}
+
+/* NOTIFICATIONS */
+.notif-item{display:flex;align-items:center;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--border)}
+.notif-item:last-child{border-bottom:none}
+.notif-info{flex:1}
+.notif-title{font-size:13px;font-weight:600;margin-bottom:2px}
+.notif-desc{font-size:11px;color:var(--muted)}
+.toggle{width:40px;height:22px;background:var(--border-strong);border-radius:999px;cursor:pointer;position:relative;transition:background .2s;border:none;flex-shrink:0}
+.toggle.on{background:var(--brand)}
+.toggle::after{content:'';position:absolute;width:16px;height:16px;background:#fff;border-radius:50%;top:3px;left:3px;transition:transform .2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle.on::after{transform:translateX(18px)}
+
+/* SECURITY */
+.sec-item{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border)}
+.sec-item:last-child{border-bottom:none}
+.sec-left{display:flex;align-items:center;gap:12px}
+.sec-icon{width:36px;height:36px;border-radius:var(--r-lg);display:flex;align-items:center;justify-content:center;font-size:18px}
+.sec-title{font-size:13px;font-weight:600;margin-bottom:1px}
+.sec-desc{font-size:11px;color:var(--muted)}
+.sec-badge{font-size:11px;font-weight:600;padding:3px 8px;border-radius:999px}
+.sec-badge.ok{background:var(--success-bg);color:var(--success)}
+.sec-badge.off{background:var(--border);color:var(--muted)}
+
+/* WALLET */
+.wallet-card{background:linear-gradient(135deg,#1A1614,#2D2320);border-radius:var(--r-xl);padding:20px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.wallet-amount{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;color:#fff}
+.wallet-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.55);text-transform:uppercase;letter-spacing:.5px;margin-bottom:4px}
+.wallet-sub{font-size:12px;color:rgba(255,255,255,.5);margin-top:4px}
+.wallet-btn{background:var(--gold);color:#fff;border:none;padding:10px 18px;border-radius:var(--r-lg);font-size:13px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+.txn-item{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--border)}
+.txn-item:last-child{border-bottom:none}
+.txn-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.txn-icon.credit{background:var(--success-bg)}
+.txn-icon.debit{background:var(--danger-bg)}
+.txn-title{font-size:13px;font-weight:500}
+.txn-date{font-size:11px;color:var(--hint)}
+.txn-amount{font-size:13px;font-weight:700}
+.txn-amount.credit{color:var(--success)}
+.txn-amount.debit{color:var(--danger)}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:500;align-items:center;justify-content:center;backdrop-filter:blur(4px);padding:16px}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:var(--r-2xl);padding:24px;width:460px;max-width:100%;max-height:90vh;overflow-y:auto;box-shadow:var(--shadow-lg)}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.modal-title{font-family:'Syne',sans-serif;font-size:17px;font-weight:700}
+.modal-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--hint);padding:4px;border-radius:var(--r)}
+.modal-close:hover{background:var(--bg)}
+.modal-footer{display:flex;gap:8px;justify-content:flex-end;margin-top:20px;padding-top:16px;border-top:1px solid var(--border)}
+.m-btn{padding:9px 20px;border-radius:var(--r-lg);font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;border:none;transition:all .2s}
+.m-btn.primary{background:var(--brand);color:#fff}
+.m-btn.primary:hover{background:var(--brand-dark)}
+.m-btn.secondary{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.form-textarea{width:100%;border:1.5px solid var(--border-strong);border-radius:var(--r-lg);padding:10px 14px;font-size:13px;font-family:'DM Sans',sans-serif;color:var(--text);outline:none;transition:border .2s;resize:vertical;min-height:70px}
+.form-textarea:focus{border-color:var(--brand)}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:var(--text);color:#fff;padding:11px 18px;border-radius:var(--r-lg);font-size:13px;font-weight:500;z-index:3000;transform:translateY(80px);opacity:0;transition:all .3s;box-shadow:var(--shadow-lg);max-width:300px}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.success{background:var(--success)}
+.toast.error{background:var(--danger)}
+
+/* EMPTY */
+.empty{text-align:center;padding:40px 20px;color:var(--muted)}
+.empty .ei{font-size:48px;margin-bottom:12px}
+.empty h3{font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
+.empty p{font-size:13px;margin-bottom:16px}
+
+/* MOBILE */
+@media(max-width:768px){
+  .account-wrap{grid-template-columns:1fr}
+  .sidebar{display:none}
+  .mob-menu{display:flex}
+  .stats-grid{grid-template-columns:1fr 1fr 1fr}
+  .wish-grid{grid-template-columns:1fr 1fr}
+  .addr-grid{grid-template-columns:1fr}
+  .profile-grid{grid-template-columns:1fr}
+  .form-row{grid-template-columns:1fr}
+}
+.mob-menu{display:none;overflow-x:auto;gap:6px;padding:10px 16px;background:#fff;border-bottom:1px solid var(--border);-webkit-overflow-scrolling:touch}
+.mob-menu-btn{display:flex;flex-direction:column;align-items:center;gap:3px;padding:8px 12px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:10px;color:var(--muted);cursor:pointer;border-radius:var(--r);transition:all .2s;white-space:nowrap;flex-shrink:0}
+.mob-menu-btn .mmi{font-size:20px}
+.mob-menu-btn.active,.mob-menu-btn:hover{color:var(--brand);background:var(--brand-light)}
+@media(max-width:768px){.mob-menu{display:flex}}
+</style>
+</head>
+<body>
+
+<!-- LOADING SCREEN -->
+<div id="loadingScreen">
+  <div class="logo">Bazaar<span>X</span></div>
+  <div class="spinner"></div>
+  <div style="font-size:13px;color:var(--muted)">Loading your account…</div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-inner">
+    <a href="index.html" class="logo">Bazaar<span>X</span></a>
+    <div class="hdr-right">
+      <button class="hdr-link" onclick="window.location.href='index.html'">← Store</button>
+      <button class="hdr-btn" id="loginNavBtn" onclick="showPage('auth')" style="display:none">Login</button>
+      <button class="hdr-btn" id="logoutNavBtn" style="display:none;background:rgba(255,255,255,.2);color:#fff" onclick="doLogout()">🚪 Logout</button>
+    </div>
+  </div>
+</header>
+
+<!-- MOBILE MENU -->
+<div class="mob-menu" id="mobMenu" style="display:none">
+  <button class="mob-menu-btn active" onclick="showSection('overview',this)"><span class="mmi">🏠</span>Home</button>
+  <button class="mob-menu-btn" onclick="showSection('orders',this)"><span class="mmi">📦</span>Orders</button>
+  <button class="mob-menu-btn" onclick="showSection('wishlist',this)"><span class="mmi">❤️</span>Wishlist</button>
+  <button class="mob-menu-btn" onclick="showSection('wallet',this)"><span class="mmi">💳</span>Wallet</button>
+  <button class="mob-menu-btn" onclick="showSection('addresses',this)"><span class="mmi">📍</span>Address</button>
+  <button class="mob-menu-btn" onclick="showSection('profile',this)"><span class="mmi">👤</span>Profile</button>
+  <button class="mob-menu-btn" onclick="showSection('security',this)"><span class="mmi">🔒</span>Security</button>
+  <button class="mob-menu-btn" onclick="doLogout()"><span class="mmi">🚪</span>Logout</button>
+</div>
+
+<!-- ══════ AUTH PAGE ══════ -->
+<div class="page active" id="page-auth">
+  <div class="auth-wrap">
+    <div class="auth-card">
+      <div class="auth-top">
+        <div class="ai">🛍️</div>
+        <h2>My BazaarX Account</h2>
+        <p>Login or create your free account</p>
+      </div>
+      <div class="auth-body">
+        <div class="auth-tabs">
+          <button class="auth-tab active" id="loginTab" onclick="switchTab('login')">Login</button>
+          <button class="auth-tab" id="signupTab" onclick="switchTab('signup')">Sign Up Free</button>
+        </div>
+
+        <!-- LOGIN -->
+        <div id="loginForm">
+          <div class="auth-error" id="loginError"></div>
+          <div class="auth-success" id="loginSuccess"></div>
+          <div class="form-group"><label class="form-label">Email Address</label><input class="form-input" id="li-email" type="email" placeholder="your@email.com" autocomplete="email"/></div>
+          <div class="form-group"><label class="form-label">Password</label><input class="form-input" id="li-pass" type="password" placeholder="Your password" autocomplete="current-password"/></div>
+          <a class="forgot-link" onclick="doForgotPassword()">Forgot Password?</a>
+          <button class="auth-btn" id="loginBtn" onclick="doLogin()">🔐 Login to My Account</button>
+          <div class="divider">or</div>
+          <div style="display:flex;gap:8px">
+            <button onclick="showToast('Google login coming soon!','')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;border:1.5px solid var(--border);border-radius:var(--r-lg);font-size:13px;font-weight:500;cursor:pointer;background:#fff;color:var(--text);font-family:'DM Sans',sans-serif;transition:all .2s" onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor='var(--border)'">🌐 Google</button>
+            <button onclick="showToast('Facebook login coming soon!','')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px;border:1.5px solid var(--border);border-radius:var(--r-lg);font-size:13px;font-weight:500;cursor:pointer;background:#fff;color:var(--text);font-family:'DM Sans',sans-serif;transition:all .2s" onmouseover="this.style.borderColor='var(--brand)'" onmouseout="this.style.borderColor='var(--border)'">📘 Facebook</button>
+          </div>
+          <div class="auth-switch">No account? <a onclick="switchTab('signup')">Sign up free</a></div>
+          <div style="text-align:center;margin-top:12px;padding:8px;background:var(--bg);border-radius:var(--r);font-size:11px;color:var(--muted)">
+            Demo: <strong>test@bazaarx.pk</strong> / <strong>test1234</strong>
+          </div>
+        </div>
+
+        <!-- SIGNUP -->
+        <div id="signupForm" style="display:none">
+          <div class="auth-error" id="signupError"></div>
+          <div style="background:var(--success-bg);border:1px solid #BBF7D0;border-radius:var(--r);padding:8px 12px;font-size:12px;color:var(--success);margin-bottom:12px;display:flex;align-items:center;gap:6px">
+            🎉 <strong>Free account!</strong> Shop, track orders & save wishlists
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label class="form-label">First Name *</label><input class="form-input" id="su-fname" placeholder="Muhammad" autocomplete="given-name"/></div>
+            <div class="form-group"><label class="form-label">Last Name *</label><input class="form-input" id="su-lname" placeholder="Ali" autocomplete="family-name"/></div>
+          </div>
+          <div class="form-group"><label class="form-label">Email Address *</label><input class="form-input" id="su-email" type="email" placeholder="your@email.com" autocomplete="email"/></div>
+          <div class="form-group"><label class="form-label">Phone Number *</label><input class="form-input" id="su-phone" placeholder="03XX-XXXXXXX" autocomplete="tel"/></div>
+          <div class="form-group"><label class="form-label">Password * (min 6 chars)</label><input class="form-input" id="su-pass" type="password" placeholder="Create password" autocomplete="new-password"/></div>
+          <div class="form-group"><label class="form-label">City</label>
+            <select class="form-select" id="su-city">
+              <option value="">Select City</option>
+              <option>Karachi</option><option>Lahore</option><option>Islamabad</option>
+              <option>Peshawar</option><option>Quetta</option><option>Multan</option><option>Other</option>
+            </select>
+          </div>
+          <button class="auth-btn" id="signupBtn" onclick="doSignup()">🚀 Create Free Account</button>
+          <div class="auth-switch">Already have account? <a onclick="switchTab('login')">Login</a></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ ACCOUNT PAGE ══════ -->
+<div class="page" id="page-account">
+  <div class="account-wrap">
+
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="user-card">
+        <div class="user-avatar" id="userAvatar">👤</div>
+        <div class="user-name" id="userName">Loading…</div>
+        <div class="user-email" id="userEmail">…</div>
+        <div class="user-badge">⭐ BazaarX Member</div>
+      </div>
+      <div class="sidebar-menu">
+        <button class="menu-item active" onclick="showSection('overview',this)"><span class="mi">🏠</span> Overview</button>
+        <button class="menu-item" onclick="showSection('orders',this)"><span class="mi">📦</span> My Orders</button>
+        <button class="menu-item" onclick="showSection('wishlist',this)"><span class="mi">❤️</span> Wishlist</button>
+        <button class="menu-item" onclick="showSection('wallet',this)"><span class="mi">💳</span> BazaarX Wallet</button>
+        <button class="menu-item" onclick="showSection('addresses',this)"><span class="mi">📍</span> Addresses</button>
+        <button class="menu-item" onclick="showSection('profile',this)"><span class="mi">👤</span> Edit Profile</button>
+        <button class="menu-item" onclick="showSection('notifications',this)"><span class="mi">🔔</span> Notifications</button>
+        <button class="menu-item" onclick="showSection('security',this)"><span class="mi">🔒</span> Security</button>
+        <button class="menu-item danger" onclick="doLogout()"><span class="mi">🚪</span> Logout</button>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main-content">
+
+      <!-- OVERVIEW -->
+      <div class="section active" id="section-overview">
+        <div class="stats-grid">
+          <div class="stat-box"><div class="stat-icon">📦</div><div class="stat-val">8</div><div class="stat-lbl">Orders</div></div>
+          <div class="stat-box"><div class="stat-icon">❤️</div><div class="stat-val" id="wishCount">4</div><div class="stat-lbl">Wishlist</div></div>
+          <div class="stat-box"><div class="stat-icon">💰</div><div class="stat-val">Rs.2.4K</div><div class="stat-lbl">Wallet</div></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">📦 Recent Orders</div><button class="card-btn outline" onclick="showSection('orders',null)">View All</button></div>
+          <div id="recentOrdersDiv"></div>
+        </div>
+        <div class="card">
+          <div class="card-header"><div class="card-title">❤️ Wishlist</div><button class="card-btn outline" onclick="showSection('wishlist',null)">View All</button></div>
+          <div class="wish-grid" id="overviewWishDiv"></div>
+        </div>
+      </div>
+
+      <!-- ORDERS -->
+      <div class="section" id="section-orders">
+        <div class="card">
+          <div class="card-header"><div class="card-title">📦 My Orders</div></div>
+          <div id="allOrdersDiv"></div>
+        </div>
+      </div>
+
+      <!-- WISHLIST -->
+      <div class="section" id="section-wishlist">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">❤️ My Wishlist</div>
+            <button class="card-btn" onclick="showToast('🛒 All items added to cart!','success')">🛒 Add All to Cart</button>
+          </div>
+          <div class="wish-grid" id="fullWishDiv"></div>
+        </div>
+      </div>
+
+      <!-- WALLET -->
+      <div class="section" id="section-wallet">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:16px">💳 BazaarX Wallet</div>
+          <div class="wallet-card">
+            <div>
+              <div class="wallet-label">Available Balance</div>
+              <div class="wallet-amount">Rs. 2,400</div>
+              <div class="wallet-sub">5% cashback on every order</div>
+            </div>
+            <button class="wallet-btn" onclick="showToast('💳 Top-up coming soon!','')">+ Add Money</button>
+          </div>
+          <div style="font-family:'Syne',sans-serif;font-size:15px;font-weight:700;margin-bottom:12px">Transaction History</div>
+          <div id="walletDiv"></div>
+        </div>
+      </div>
+
+      <!-- ADDRESSES -->
+      <div class="section" id="section-addresses">
+        <div class="card">
+          <div class="card-header"><div class="card-title">📍 My Addresses</div><button class="card-btn" onclick="openModal('addAddr')">➕ Add New</button></div>
+          <div class="addr-grid" id="addrGrid"></div>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div class="section" id="section-profile">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:18px">👤 Edit Profile</div>
+          <div class="profile-grid">
+            <div class="form-group"><label class="form-label">First Name</label><input class="form-input" id="pf-fname"/></div>
+            <div class="form-group"><label class="form-label">Last Name</label><input class="form-input" id="pf-lname"/></div>
+            <div class="form-group"><label class="form-label">Email</label><input class="form-input" id="pf-email" type="email"/></div>
+            <div class="form-group"><label class="form-label">Phone</label><input class="form-input" id="pf-phone"/></div>
+            <div class="form-group"><label class="form-label">City</label>
+              <select class="form-select" id="pf-city">
+                <option>Karachi</option><option>Lahore</option><option>Islamabad</option><option>Peshawar</option><option>Quetta</option><option>Multan</option>
+              </select>
+            </div>
+            <div class="form-group"><label class="form-label">Gender</label>
+              <select class="form-select" id="pf-gender"><option>Male</option><option>Female</option><option>Prefer not to say</option></select>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:8px">
+            <button class="save-btn" onclick="saveProfile()">💾 Save Changes</button>
+            <button class="save-btn" style="background:var(--bg);color:var(--muted);border:1px solid var(--border)" onclick="showToast('↩️ Cancelled','')">Cancel</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title" style="margin-bottom:18px">🔑 Change Password</div>
+          <div style="max-width:380px">
+            <div class="form-group"><label class="form-label">Current Password</label><input class="form-input" id="cp-old" type="password" placeholder="Current password"/></div>
+            <div class="form-group"><label class="form-label">New Password</label><input class="form-input" id="cp-new" type="password" placeholder="New password (min 6 chars)"/></div>
+            <div class="form-group"><label class="form-label">Confirm New Password</label><input class="form-input" id="cp-confirm" type="password" placeholder="Repeat new password"/></div>
+            <button class="save-btn" onclick="changePassword()">🔑 Update Password</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTIFICATIONS -->
+      <div class="section" id="section-notifications">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:18px">🔔 Notification Settings</div>
+          <div class="notif-item"><div class="notif-info"><div class="notif-title">Order Updates</div><div class="notif-desc">When your order status changes</div></div><button class="toggle on" onclick="toggleSwitch(this)"></button></div>
+          <div class="notif-item"><div class="notif-info"><div class="notif-title">Delivery Alerts</div><div class="notif-desc">When package is out for delivery</div></div><button class="toggle on" onclick="toggleSwitch(this)"></button></div>
+          <div class="notif-item"><div class="notif-info"><div class="notif-title">Flash Sale Alerts</div><div class="notif-desc">Be first to know about flash sales</div></div><button class="toggle on" onclick="toggleSwitch(this)"></button></div>
+          <div class="notif-item"><div class="notif-info"><div class="notif-title">Price Drop Alerts</div><div class="notif-desc">When wishlist items go on sale</div></div><button class="toggle" onclick="toggleSwitch(this)"></button></div>
+          <div class="notif-item"><div class="notif-info"><div class="notif-title">SMS Notifications</div><div class="notif-desc">Order updates via SMS</div></div><button class="toggle on" onclick="toggleSwitch(this)"></button></div>
+          <div class="notif-item"><div class="notif-info"><div class="notif-title">WhatsApp Updates</div><div class="notif-desc">Order tracking on WhatsApp</div></div><button class="toggle" onclick="toggleSwitch(this)"></button></div>
+          <div style="margin-top:16px"><button class="save-btn" onclick="showToast('✅ Preferences saved!','success')">💾 Save</button></div>
+        </div>
+      </div>
+
+      <!-- SECURITY -->
+      <div class="section" id="section-security">
+        <div class="card">
+          <div class="card-title" style="margin-bottom:4px">🔒 Security</div>
+          <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Keep your account safe</div>
+          <div class="sec-item"><div class="sec-left"><div class="sec-icon" style="background:var(--success-bg)">✅</div><div><div class="sec-title">Email Verified</div><div class="sec-desc" id="secEmail">your@email.com</div></div></div><span class="sec-badge ok">Verified</span></div>
+          <div class="sec-item"><div class="sec-left"><div class="sec-icon" style="background:var(--info-bg)">🔐</div><div><div class="sec-title">Two-Factor Authentication</div><div class="sec-desc">Extra security for your account</div></div></div><button class="card-btn" onclick="showToast('📱 2FA coming soon!','')">Enable</button></div>
+          <div class="sec-item"><div class="sec-left"><div class="sec-icon" style="background:var(--gold-light)">🔑</div><div><div class="sec-title">Password</div><div class="sec-desc">Change your login password</div></div></div><button class="card-btn outline" onclick="showSection('profile',null)">Change</button></div>
+          <div class="sec-item"><div class="sec-left"><div class="sec-icon" style="background:var(--danger-bg)">🚨</div><div><div class="sec-title">Delete Account</div><div class="sec-desc">Permanently delete your account</div></div></div><button class="card-btn" style="background:var(--danger)" onclick="showToast('⚠️ Contact support to delete account','')">Delete</button></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ADD ADDRESS MODAL -->
+<div class="modal-overlay" id="modal-addAddr">
+  <div class="modal">
+    <div class="modal-header"><div class="modal-title">📍 Add New Address</div><button class="modal-close" onclick="closeModal('addAddr')">✕</button></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">Full Name *</label><input class="form-input" id="ad-name" placeholder="Recipient name"/></div>
+      <div class="form-group"><label class="form-label">Phone *</label><input class="form-input" id="ad-phone" placeholder="03XX-XXXXXXX"/></div>
+    </div>
+    <div class="form-group"><label class="form-label">Address Type</label>
+      <select class="form-select" id="ad-type"><option>🏠 Home</option><option>🏢 Office</option><option>📍 Other</option></select>
+    </div>
+    <div class="form-group"><label class="form-label">Full Address *</label><input class="form-input" id="ad-full" placeholder="House No, Street, Area"/></div>
+    <div class="form-row">
+      <div class="form-group"><label class="form-label">City *</label>
+        <select class="form-select" id="ad-city"><option>Karachi</option><option>Lahore</option><option>Islamabad</option><option>Peshawar</option><option>Quetta</option><option>Multan</option></select>
+      </div>
+      <div class="form-group"><label class="form-label">Area</label><input class="form-input" id="ad-area" placeholder="e.g. DHA Phase 5"/></div>
+    </div>
+    <div class="form-group"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted)"><input type="checkbox" id="ad-default" style="accent-color:var(--brand)"/> Set as default address</label></div>
+    <div class="modal-footer">
+      <button class="m-btn secondary" onclick="closeModal('addAddr')">Cancel</button>
+      <button class="m-btn primary" onclick="addAddress()">✅ Save Address</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ══════════════════════════════════
+// SUPABASE CONFIG
+// ══════════════════════════════════
+const SUPA_URL = 'https://eqikgqjgbtjpvmgautli.supabase.co';
+const SUPA_KEY = 'sb_publishable_Atglz17Nrj0VQAK2glBY3A_if1e9gUX';
+
+let currentUser = null;
+let userSession = null;
+
+// ══════════════════════════════════
+// SUPABASE HELPERS
+// ══════════════════════════════════
+async function supaFetch(path, method='GET', body=null, token=null){
+  const headers = {
+    'Content-Type':'application/json',
+    'apikey': SUPA_KEY,
+    'Authorization': `Bearer ${token || SUPA_KEY}`
+  };
+  const opts = {method, headers};
+  if(body) opts.body = JSON.stringify(body);
+  const res = await fetch(SUPA_URL + path, opts);
+  let data;
+  try { data = await res.json(); } catch(e){ data = {}; }
+  return {ok: res.ok, status: res.status, data};
+}
+
+async function supaAuth(path, body){
+  return supaFetch('/auth/v1/'+path, 'POST', body);
+}
+
+// ══════════════════════════════════
+// AUTH FUNCTIONS
+// ══════════════════════════════════
+async function doSignup(){
+  const fname = document.getElementById('su-fname').value.trim();
+  const lname = document.getElementById('su-lname').value.trim();
+  const email = document.getElementById('su-email').value.trim();
+  const phone = document.getElementById('su-phone').value.trim();
+  const pass = document.getElementById('su-pass').value.trim();
+  const city = document.getElementById('su-city').value;
+  const err = document.getElementById('signupError');
+
+  if(!fname||!lname||!email||!phone||!pass){
+    err.textContent='❌ Please fill all required fields';err.style.display='block';return;
+  }
+  if(pass.length < 6){
+    err.textContent='❌ Password must be at least 6 characters';err.style.display='block';return;
+  }
+  err.style.display='none';
+
+  const btn = document.getElementById('signupBtn');
+  btn.disabled=true; btn.textContent='⏳ Creating account…';
+
+  try {
+    const {ok, data} = await supaAuth('signup', {
+      email, password: pass,
+      data: {full_name: fname+' '+lname, phone, city}
+    });
+
+    if(!ok){
+      const msg = data.error_description || data.msg || data.message || 'Signup failed';
+      err.textContent = '❌ ' + (msg.includes('already registered') ? 'Email already registered. Please login!' : msg);
+      err.style.display='block';
+    } else {
+      // Auto login after signup
+      await performLogin(email, pass);
+    }
+  } catch(e){
+    err.textContent = '❌ Network error. Check your connection.';
+    err.style.display='block';
+  }
+  btn.disabled=false; btn.textContent='🚀 Create Free Account';
+}
+
+async function doLogin(){
+  const email = document.getElementById('li-email').value.trim();
+  const pass = document.getElementById('li-pass').value.trim();
+  const err = document.getElementById('loginError');
+  const suc = document.getElementById('loginSuccess');
+
+  if(!email||!pass){err.textContent='❌ Please enter email and password';err.style.display='block';return;}
+  err.style.display='none'; suc.style.display='none';
+
+  const btn = document.getElementById('loginBtn');
+  btn.disabled=true; btn.textContent='⏳ Logging in…';
+
+  await performLogin(email, pass);
+  btn.disabled=false; btn.textContent='🔐 Login to My Account';
+}
+
+async function performLogin(email, pass){
+  const err = document.getElementById('loginError');
+  try {
+    const {ok, data} = await supaAuth('token?grant_type=password', {email, password: pass});
+
+    if(!ok){
+      const msg = data.error_description || data.msg || 'Invalid email or password';
+      err.textContent = '❌ ' + msg;
+      err.style.display='block';
+      switchTab('login');
+      return;
+    }
+
+    userSession = data;
+    currentUser = data.user;
+
+    // Save session to localStorage (works on all devices)
+    localStorage.setItem('bx_session', JSON.stringify({
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      user: data.user,
+      expires_at: Date.now() + (data.expires_in * 1000)
+    }));
+
+    onLoginSuccess();
+
+  } catch(e){
+    err.textContent = '❌ Network error. Please check your internet connection.';
+    err.style.display='block';
+    switchTab('login');
+  }
+}
+
+async function doForgotPassword(){
+  const email = document.getElementById('li-email').value.trim();
+  const suc = document.getElementById('loginSuccess');
+  const err = document.getElementById('loginError');
+
+  if(!email){err.textContent='❌ Please enter your email address first';err.style.display='block';return;}
+  err.style.display='none';
+
+  try {
+    await supaAuth('recover', {email});
+    suc.textContent = '✅ Password reset email sent! Check your inbox.';
+    suc.style.display='block';
+  } catch(e){
+    err.textContent = '❌ Could not send reset email. Try again.';
+    err.style.display='block';
+  }
+}
+
+async function doLogout(){
+  try {
+    if(userSession?.access_token){
+      await supaFetch('/auth/v1/logout', 'POST', {}, userSession.access_token);
+    }
+  } catch(e){}
+  currentUser = null;
+  userSession = null;
+  localStorage.removeItem('bx_session');
+  document.getElementById('loginNavBtn').style.display='block';
+  document.getElementById('logoutNavBtn').style.display='none';
+  document.getElementById('mobMenu').style.display='none';
+  showPage('auth');
+  showToast('👋 Logged out successfully','');
+}
+
+async function changePassword(){
+  const oldPass = document.getElementById('cp-old').value.trim();
+  const newPass = document.getElementById('cp-new').value.trim();
+  const confirm = document.getElementById('cp-confirm').value.trim();
+
+  if(!oldPass||!newPass||!confirm){showToast('⚠️ Fill all password fields','error');return;}
+  if(newPass.length < 6){showToast('❌ New password must be at least 6 characters','error');return;}
+  if(newPass !== confirm){showToast('❌ Passwords do not match','error');return;}
+
+  try {
+    const {ok, data} = await supaFetch('/auth/v1/user', 'PUT', {password: newPass}, userSession?.access_token);
+    if(ok){
+      showToast('✅ Password updated successfully!','success');
+      document.getElementById('cp-old').value='';
+      document.getElementById('cp-new').value='';
+      document.getElementById('cp-confirm').value='';
+    } else {
+      showToast('❌ ' + (data.message || 'Could not update password'),'error');
+    }
+  } catch(e){
+    showToast('❌ Network error','error');
+  }
+}
+
+// ══════════════════════════════════
+// ON LOGIN
+// ══════════════════════════════════
+function onLoginSuccess(){
+  const user = currentUser;
+  const meta = user?.user_metadata || {};
+  const fullName = meta.full_name || user?.email?.split('@')[0] || 'User';
+  const initials = fullName.split(' ').map(n=>n[0]).join('').toUpperCase().substring(0,2);
+
+  document.getElementById('userAvatar').textContent = initials || '👤';
+  document.getElementById('userName').textContent = fullName;
+  document.getElementById('userEmail').textContent = user?.email || '';
+  document.getElementById('secEmail').textContent = user?.email || '';
+
+  // Prefill profile
+  const nameParts = fullName.split(' ');
+  document.getElementById('pf-fname').value = nameParts[0] || '';
+  document.getElementById('pf-lname').value = nameParts.slice(1).join(' ') || '';
+  document.getElementById('pf-email').value = user?.email || '';
+  document.getElementById('pf-phone').value = meta.phone || '';
+
+  document.getElementById('loginNavBtn').style.display='none';
+  document.getElementById('logoutNavBtn').style.display='block';
+  document.getElementById('mobMenu').style.display='flex';
+
+  renderAll();
+  showPage('account');
+  showToast('🎉 Welcome back, ' + fullName.split(' ')[0] + '!','success');
+}
+
+function saveProfile(){
+  const fname = document.getElementById('pf-fname').value;
+  const lname = document.getElementById('pf-lname').value;
+  const fullName = fname + ' ' + lname;
+  document.getElementById('userName').textContent = fullName;
+  const initials = (fname[0]||(lname[0]||'U')).toUpperCase() + ((lname[0]||'').toUpperCase());
+  document.getElementById('userAvatar').textContent = initials;
+  showToast('✅ Profile updated!','success');
+}
+
+// ══════════════════════════════════
+// DEMO DATA
+// ══════════════════════════════════
+const orders = [
+  {id:'#BX-10291',date:'16 May 2026',status:'delivered',items:[{name:'Samsung Galaxy A54 5G',emoji:'📱',price:'Rs. 89,999'}],total:'Rs. 89,999'},
+  {id:'#BX-10288',date:'15 May 2026',status:'shipped',items:[{name:'HP Victus Laptop',emoji:'💻',price:'Rs. 189,999'}],total:'Rs. 189,999'},
+  {id:'#BX-10283',date:'10 May 2026',status:'delivered',items:[{name:'Nike Air Max 270',emoji:'👟',price:'Rs. 22,999'},{name:'Adidas Cap',emoji:'🧢',price:'Rs. 2,500'}],total:'Rs. 25,499'},
+  {id:'#BX-10270',date:'1 May 2026',status:'cancelled',items:[{name:'JBL Flip 6',emoji:'🔊',price:'Rs. 21,999'}],total:'Rs. 21,999'},
+];
+
+let wishlist = [
+  {name:'Apple AirPods Pro 2',emoji:'🎧',price:'Rs. 64,999',old:'Rs. 89,999'},
+  {name:'OnePlus Watch 2',emoji:'⌚',price:'Rs. 44,999',old:'Rs. 59,999'},
+  {name:'Sapphire 3-Piece',emoji:'👗',price:'Rs. 5,499',old:'Rs. 7,999'},
+  {name:'PS DualSense Controller',emoji:'🎮',price:'Rs. 18,999',old:'Rs. 24,999'},
+];
+
+let addresses = [
+  {name:'Muhammad Ali',phone:'0300-1234567',type:'🏠 Home',full:'House #24, Gulshan-e-Iqbal',city:'Karachi',area:'Block 13-D',default:true},
+  {name:'Muhammad Ali',phone:'0300-1234567',type:'🏢 Office',full:'Office 301, Business Tower',city:'Karachi',area:'Downtown',default:false},
+];
+
+const walletTxns = [
+  {type:'credit',icon:'🎁',title:'Cashback — Order #BX-10291',date:'16 May',amount:'+Rs. 450'},
+  {type:'debit',icon:'🛒',title:'Payment — Order #BX-10288',date:'15 May',amount:'-Rs. 189,999'},
+  {type:'credit',icon:'💰',title:'Refund — Order #BX-10270',date:'5 May',amount:'+Rs. 21,999'},
+  {type:'credit',icon:'🎁',title:'Cashback — Order #BX-10283',date:'11 May',amount:'+Rs. 127'},
+];
+
+// ══════════════════════════════════
+// RENDER FUNCTIONS
+// ══════════════════════════════════
+function renderAll(){
+  renderOrders();
+  renderWishlist();
+  renderWallet();
+  renderAddresses();
+}
+
+function statusBadge(s){
+  const m={delivered:'<span class="badge delivered">✅ Delivered</span>',shipped:'<span class="badge shipped">🚚 Shipped</span>',processing:'<span class="badge processing">⚙️ Processing</span>',cancelled:'<span class="badge cancelled">❌ Cancelled</span>',pending:'<span class="badge pending">⏳ Pending</span>'};
+  return m[s]||'<span class="badge">'+s+'</span>';
+}
+
+function orderHTML(o){
+  return `<div class="order-card">
+    <div class="order-head">
+      <div><div class="order-id">${o.id}</div><div class="order-date">${o.date}</div></div>
+      ${statusBadge(o.status)}
+    </div>
+    <div class="order-body">
+      ${o.items.map(i=>`<div class="order-item"><div class="oi-img">${i.emoji}</div><div class="oi-name">${i.name}</div><div class="oi-price">${i.price}</div></div>`).join('')}
+      <div class="order-foot">
+        <div class="order-total">Total: <span style="color:var(--brand)">${o.total}</span></div>
+        <div class="order-btns">
+          ${o.status==='delivered'?'<button class="o-btn" onclick="showToast(\'⭐ Review page!\',\'\')">Review</button>':''}
+          ${o.status!=='cancelled'?`<button class="o-btn" onclick="showToast('📦 Tracking order…','')">Track</button>`:''}
+          ${o.status==='delivered'?'<button class="o-btn primary" onclick="showToast(\'🔄 Reordered!\',\'success\')">Reorder</button>':''}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderOrders(){
+  document.getElementById('recentOrdersDiv').innerHTML = orders.slice(0,2).map(orderHTML).join('');
+  document.getElementById('allOrdersDiv').innerHTML = orders.map(orderHTML).join('');
+}
+
+function wishHTML(w,i){
+  return `<div class="wish-card">
+    <div class="wish-img">${w.emoji}<div class="wish-remove" onclick="removeWish(${i})">✕</div></div>
+    <div class="wish-info">
+      <div class="wish-name">${w.name}</div>
+      <div class="wish-price">${w.price} <span style="font-size:10px;color:var(--hint);text-decoration:line-through">${w.old}</span></div>
+      <button class="wish-btn" onclick="showToast('🛒 Added to cart!','success')">+ Add to Cart</button>
+    </div>
+  </div>`;
+}
+
+function renderWishlist(){
+  document.getElementById('overviewWishDiv').innerHTML = wishlist.slice(0,3).map(wishHTML).join('');
+  document.getElementById('fullWishDiv').innerHTML = wishlist.length ? wishlist.map(wishHTML).join('') : '<div class="empty"><div class="ei">❤️</div><h3>Wishlist is empty</h3><p>Save products you love!</p></div>';
+  document.getElementById('wishCount').textContent = wishlist.length;
+}
+
+function removeWish(i){wishlist.splice(i,1);renderWishlist();showToast('💔 Removed from wishlist','');}
+
+function renderWallet(){
+  document.getElementById('walletDiv').innerHTML = walletTxns.map(t=>`
+    <div class="txn-item">
+      <div class="txn-icon ${t.type}">${t.icon}</div>
+      <div style="flex:1"><div class="txn-title">${t.title}</div><div class="txn-date">${t.date}</div></div>
+      <div class="txn-amount ${t.type}">${t.amount}</div>
+    </div>`).join('');
+}
+
+function renderAddresses(){
+  const addBtn = `<div class="add-addr" onclick="openModal('addAddr')"><div style="font-size:28px">➕</div><div style="font-size:13px;color:var(--muted);font-weight:500">Add New Address</div></div>`;
+  document.getElementById('addrGrid').innerHTML = addresses.map((a,i)=>`
+    <div class="addr-card ${a.default?'default':''}">
+      ${a.default?'<div class="addr-default-badge">✅ Default</div>':''}
+      <div class="addr-type">${a.type}</div>
+      <div class="addr-name">${a.name}</div>
+      <div class="addr-detail">${a.full}<br>${a.area}, ${a.city}<br>${a.phone}</div>
+      <div class="addr-actions">
+        <button class="a-btn" onclick="showToast('✏️ Edit address','')">✏️ Edit</button>
+        ${!a.default?`<button class="a-btn" onclick="setDefault(${i})">✅ Default</button>`:''}
+        <button class="a-btn danger" onclick="removeAddr(${i})">🗑️</button>
+      </div>
+    </div>`).join('') + addBtn;
+}
+
+function setDefault(i){addresses.forEach((a,j)=>a.default=j===i);renderAddresses();showToast('✅ Default address set!','success');}
+function removeAddr(i){if(addresses[i].default){showToast('⚠️ Cannot remove default address','error');return;}addresses.splice(i,1);renderAddresses();showToast('🗑️ Address removed','');}
+
+function addAddress(){
+  const name=document.getElementById('ad-name').value.trim();
+  const phone=document.getElementById('ad-phone').value.trim();
+  const full=document.getElementById('ad-full').value.trim();
+  const city=document.getElementById('ad-city').value;
+  const area=document.getElementById('ad-area').value.trim();
+  const type=document.getElementById('ad-type').value;
+  const isDef=document.getElementById('ad-default').checked;
+  if(!name||!phone||!full){showToast('⚠️ Fill all required fields','error');return;}
+  if(isDef) addresses.forEach(a=>a.default=false);
+  addresses.push({name,phone,type,full,city,area:area||city,default:isDef});
+  closeModal('addAddr');
+  renderAddresses();
+  showToast('✅ Address saved!','success');
+}
+
+// ══════════════════════════════════
+// UI HELPERS
+// ══════════════════════════════════
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function switchTab(tab){
+  document.getElementById('loginForm').style.display=tab==='login'?'block':'none';
+  document.getElementById('signupForm').style.display=tab==='signup'?'block':'none';
+  document.getElementById('loginTab').classList.toggle('active',tab==='login');
+  document.getElementById('signupTab').classList.toggle('active',tab==='signup');
+  document.getElementById('loginError').style.display='none';
+  document.getElementById('signupError').style.display='none';
+  document.getElementById('loginSuccess').style.display='none';
+}
+
+function showSection(id, btn){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('section-'+id).classList.add('active');
+  if(btn){
+    document.querySelectorAll('.menu-item,.mob-menu-btn').forEach(n=>n.classList.remove('active'));
+    btn.classList.add('active');
+  }
+  window.scrollTo(0,0);
+}
+
+function openModal(id){document.getElementById('modal-'+id).classList.add('open')}
+function closeModal(id){document.getElementById('modal-'+id).classList.remove('open')}
+function toggleSwitch(btn){btn.classList.toggle('on');showToast(btn.classList.contains('on')?'🔔 Enabled':'🔕 Disabled','');}
+
+let tt;
+function showToast(msg,type=''){
+  clearTimeout(tt);
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.className='toast show'+(type?' '+type:'');
+  tt=setTimeout(()=>t.classList.remove('show'),3500);
+}
+
+// ══════════════════════════════════
+// AUTO LOGIN — Works on ALL devices
+// ══════════════════════════════════
+window.addEventListener('load', async()=>{
+  const saved = localStorage.getItem('bx_session');
+  if(saved){
+    try {
+      const session = JSON.parse(saved);
+      // Check if session is still valid
+      if(session.expires_at && Date.now() < session.expires_at){
+        userSession = session;
+        currentUser = session.user;
+        document.getElementById('loadingScreen').style.display='none';
+        onLoginSuccess();
+        return;
+      } else {
+        // Try to refresh token
+        const {ok, data} = await supaAuth('token?grant_type=refresh_token', {
+          refresh_token: session.refresh_token
+        });
+        if(ok){
+          userSession = data;
+          currentUser = data.user;
+          localStorage.setItem('bx_session', JSON.stringify({
+            access_token: data.access_token,
+            refresh_token: data.refresh_token,
+            user: data.user,
+            expires_at: Date.now() + (data.expires_in * 1000)
+          }));
+          document.getElementById('loadingScreen').style.display='none';
+          onLoginSuccess();
+          return;
+        }
+      }
+    } catch(e){}
+    localStorage.removeItem('bx_session');
+  }
+  document.getElementById('loadingScreen').style.display='none';
+  document.getElementById('loginNavBtn').style.display='block';
+  showPage('auth');
+});
+
+document.addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    const loginVisible = document.getElementById('loginForm').style.display!=='none';
+    if(document.getElementById('page-auth').classList.contains('active')){
+      if(loginVisible) doLogin(); else doSignup();
+    }
+  }
+});
+</script>
+</body>
+</html>
