@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BazaarX Admin Panel</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f0f2f5;color:#333;font-size:14px}
+:root{--orange:#f57224;--orange-dark:#d4611e;--orange-light:#fff3ec;--green:#0a8a00;--red:#d0021b;--blue:#1a73e8;--sidebar:240px}
+
+/* LAYOUT */
+.layout{display:flex;min-height:100vh}
+.sidebar{width:var(--sidebar);background:#1e2130;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;z-index:100;display:flex;flex-direction:column}
+.main{margin-left:var(--sidebar);flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{background:#fff;padding:0 24px;height:56px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #e8e8e8;position:sticky;top:0;z-index:50}
+.content{padding:24px;flex:1}
+
+/* SIDEBAR */
+.sidebar-logo{padding:20px 20px 16px;border-bottom:1px solid rgba(255,255,255,.08)}
+.sidebar-logo strong{color:#fff;font-size:18px;font-weight:800;display:block}
+.sidebar-logo span{color:#f57224;font-size:11px;font-weight:600;letter-spacing:1px}
+.nav-section{padding:12px 0}
+.nav-label{color:rgba(255,255,255,.35);font-size:10px;font-weight:700;letter-spacing:1.5px;padding:8px 20px 4px;text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;color:rgba(255,255,255,.65);cursor:pointer;transition:all .15s;font-size:13px;border-left:3px solid transparent}
+.nav-item:hover{background:rgba(255,255,255,.06);color:#fff}
+.nav-item.active{background:rgba(245,114,36,.15);color:#f57224;border-left-color:#f57224}
+.nav-item svg{width:18px;height:18px;flex-shrink:0}
+.nav-badge{background:#f57224;color:#fff;border-radius:10px;padding:1px 7px;font-size:10px;font-weight:700;margin-left:auto}
+.sidebar-footer{margin-top:auto;padding:16px 20px;border-top:1px solid rgba(255,255,255,.08)}
+.admin-info{display:flex;align-items:center;gap:10px}
+.admin-avatar{width:36px;height:36px;border-radius:50%;background:var(--orange);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:14px;flex-shrink:0}
+.admin-name{color:#fff;font-size:13px;font-weight:600}
+.admin-role{color:rgba(255,255,255,.4);font-size:11px}
+
+/* TOPBAR */
+.page-title{font-size:16px;font-weight:700;color:#333}
+.topbar-actions{display:flex;align-items:center;gap:12px}
+.topbar-btn{background:none;border:1px solid #e0e0e0;border-radius:6px;padding:6px 14px;font-size:13px;cursor:pointer;color:#555;display:flex;align-items:center;gap:6px;transition:all .15s}
+.topbar-btn:hover{background:#f5f5f5}
+.topbar-btn.primary{background:var(--orange);color:#fff;border-color:var(--orange)}
+.topbar-btn.primary:hover{background:var(--orange-dark)}
+
+/* STATS CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.stat-card{background:#fff;border-radius:10px;padding:20px;border:1px solid #eee;display:flex;align-items:center;gap:16px}
+.stat-icon{width:50px;height:50px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.stat-icon.orange{background:#fff3ec}
+.stat-icon.green{background:#e8f5e9}
+.stat-icon.blue{background:#e3f2fd}
+.stat-icon.purple{background:#f3e5f5}
+.stat-val{font-size:22px;font-weight:800;color:#333;line-height:1}
+.stat-label{font-size:12px;color:#888;margin-top:4px}
+.stat-change{font-size:11px;margin-top:6px;font-weight:600}
+.stat-change.up{color:var(--green)}
+.stat-change.down{color:var(--red)}
+
+/* CARDS */
+.card{background:#fff;border-radius:10px;border:1px solid #eee;overflow:hidden;margin-bottom:20px}
+.card-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid #f5f5f5}
+.card-title{font-size:15px;font-weight:700;color:#333}
+.card-body{padding:20px}
+
+/* TABLE */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{background:#f9f9f9;padding:10px 14px;text-align:left;font-size:12px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:.5px;border-bottom:1px solid #eee;white-space:nowrap}
+td{padding:12px 14px;border-bottom:1px solid #f5f5f5;font-size:13px;color:#444;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fef9f6}
+.product-cell{display:flex;align-items:center;gap:10px}
+.product-emoji{width:40px;height:40px;background:#f9f9f9;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;border:1px solid #eee}
+
+/* BADGES */
+.badge{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;display:inline-flex;align-items:center;gap:4px}
+.badge.placed{background:#fff3e0;color:#e65100}
+.badge.confirmed{background:#e3f2fd;color:#1565c0}
+.badge.packed{background:#f3e5f5;color:#6a1b9a}
+.badge.shipped{background:#e0f7fa;color:#00695c}
+.badge.delivered{background:#e8f5e9;color:#1b5e20}
+.badge.cancelled{background:#ffebee;color:#b71c1c}
+.badge.active{background:#e8f5e9;color:#1b5e20}
+.badge.low{background:#fff8e1;color:#f57f17}
+.badge.out{background:#ffebee;color:#b71c1c}
+
+/* BUTTONS */
+.btn{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-orange{background:var(--orange);color:#fff}
+.btn-orange:hover{background:var(--orange-dark)}
+.btn-outline{background:#fff;color:#555;border:1px solid #ddd}
+.btn-outline:hover{background:#f5f5f5}
+.btn-red{background:#fff;color:var(--red);border:1px solid #ffd0d0}
+.btn-red:hover{background:#fff5f5}
+.btn-green{background:#e8f5e9;color:var(--green);border:1px solid #c8e6c9}
+.btn-green:hover{background:#c8e6c9}
+
+/* FORMS */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-group{margin-bottom:16px}
+.form-group.full{grid-column:1/-1}
+.form-group label{display:block;font-size:12px;font-weight:600;color:#555;margin-bottom:5px}
+.form-group input,.form-group select,.form-group textarea{width:100%;border:1px solid #ddd;border-radius:6px;padding:9px 12px;font-size:13px;outline:none;transition:border .15s;background:#fff}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--orange)}
+.form-group textarea{resize:vertical;min-height:80px}
+
+/* MODAL */
+.modal-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;padding:20px}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal{background:#fff;border-radius:12px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.modal-header{padding:20px 24px;border-bottom:1px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:#fff;z-index:1}
+.modal-header h3{font-size:16px;font-weight:700}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid #f0f0f0;display:flex;justify-content:flex-end;gap:10px;background:#fafafa}
+
+/* LOGIN */
+.login-page{min-height:100vh;background:linear-gradient(135deg,#1e2130,#0f3460);display:flex;align-items:center;justify-content:center}
+.login-box{background:#fff;border-radius:12px;padding:40px;width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.login-logo{text-align:center;margin-bottom:28px}
+.login-logo strong{font-size:28px;font-weight:800;color:var(--orange)}
+.login-logo span{color:#888;font-size:13px;display:block;margin-top:4px}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:#333;color:#fff;padding:12px 20px;border-radius:8px;font-size:13px;z-index:9999;transform:translateY(80px);transition:transform .25s;pointer-events:none;box-shadow:0 4px 12px rgba(0,0,0,.2)}
+.toast.show{transform:translateY(0)}
+.toast.success{background:var(--green)}
+.toast.error{background:var(--red)}
+
+/* SEARCH/FILTER BAR */
+.filter-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.filter-bar input,.filter-bar select{border:1px solid #ddd;border-radius:6px;padding:8px 12px;font-size:13px;outline:none;background:#fff}
+.filter-bar input:focus,.filter-bar select:focus{border-color:var(--orange)}
+.filter-bar input{flex:1;min-width:200px}
+
+/* CHART BAR */
+.mini-chart{display:flex;align-items:flex-end;gap:4px;height:60px;margin-top:8px}
+.bar{background:var(--orange);border-radius:3px 3px 0 0;flex:1;opacity:.8;transition:opacity .15s}
+.bar:hover{opacity:1}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;padding:40px;color:#888;gap:10px}
+.spinner{width:22px;height:22px;border:3px solid #f0f0f0;border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* EMPTY */
+.empty{text-align:center;padding:48px;color:#aaa}
+.empty-icon{font-size:48px;margin-bottom:12px}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .sidebar{transform:translateX(-100%);transition:transform .25s}
+  .sidebar.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .stats-grid{grid-template-columns:repeat(2,1fr)}
+  .form-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<div id="toast" class="toast"></div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modalBox">
+    <div class="modal-header">
+      <h3 id="modalTitle">Modal</h3>
+      <button onclick="closeModal()" style="background:none;border:none;font-size:20px;cursor:pointer;color:#888">✕</button>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-footer" id="modalFooter"></div>
+  </div>
+</div>
+
+<div id="app"></div>
+
+<script>
+// ── SUPABASE ────────────────────────────────
+const SUPABASE_URL = 'https://eqikgqjgbtjpvmgautli.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_Atglz17Nrj0VQAK2glBY3A_if1e9gUX';
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+// ── ADMIN CREDENTIALS (change these!) ──────
+const ADMIN_EMAIL = 'admin@bazaarx.pk';
+const ADMIN_PASS  = 'admin123';
+
+// ── STATE ───────────────────────────────────
+let currentPage = 'dashboard';
+let currentUser = null;
+let allOrders = [];
+let allProducts = [];
+let allUsers = [];
+
+// ── UTILS ───────────────────────────────────
+const fmt = n => 'Rs. ' + Number(n || 0).toLocaleString();
+function showToast(msg, type = '') {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.className = 'toast show ' + type;
+  setTimeout(() => t.className = 'toast', 2800);
+}
+function loading() { return `<div class="loading"><div class="spinner"></div>Loading...</div>`; }
+function openModal(title, body, footer = '') {
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = body;
+  document.getElementById('modalFooter').innerHTML = footer;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+document.getElementById('modalOverlay').addEventListener('click', e => { if (e.target.id === 'modalOverlay') closeModal(); });
+
+// ── AUTH ────────────────────────────────────
+function renderLogin() {
+  document.getElementById('app').innerHTML = `
+    <div class="login-page">
+      <div class="login-box">
+        <div class="login-logo">
+          <strong>BazaarX</strong>
+          <span>Admin Panel</span>
+        </div>
+        <div class="form-group"><label>Admin Email</label><input type="email" id="aEmail" value="admin@bazaarx.pk" placeholder="admin@bazaarx.pk"></div>
+        <div class="form-group"><label>Password</label><input type="password" id="aPass" value="admin123" placeholder="Password" onkeydown="if(event.key==='Enter')adminLogin()"></div>
+        <button onclick="adminLogin()" style="width:100%;background:var(--orange);color:#fff;border:none;padding:12px;border-radius:6px;font-size:15px;font-weight:700;cursor:pointer;margin-top:4px">Login to Admin Panel</button>
+        <p style="text-align:center;font-size:11px;color:#aaa;margin-top:16px">Default: admin@bazaarx.pk / admin123</p>
+      </div>
+    </div>`;
+}
+
+function adminLogin() {
+  const e = document.getElementById('aEmail').value;
+  const p = document.getElementById('aPass').value;
+  if (e === ADMIN_EMAIL && p === ADMIN_PASS) {
+    currentUser = { email: e, name: 'Admin' };
+    renderApp();
+  } else {
+    showToast('Invalid credentials', 'error');
+  }
+}
+
+// ── MAIN APP ────────────────────────────────
+function renderApp() {
+  document.getElementById('app').innerHTML = `
+    <div class="layout">
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-logo">
+          <strong>BazaarX</strong>
+          <span>ADMIN PANEL</span>
+        </div>
+        <nav class="nav-section">
+          <div class="nav-label">Main</div>
+          <div class="nav-item ${currentPage==='dashboard'?'active':''}" onclick="navigate('dashboard')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+            Dashboard
+          </div>
+          <div class="nav-item ${currentPage==='orders'?'active':''}" onclick="navigate('orders')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+            Orders
+            <span class="nav-badge" id="pendingBadge">0</span>
+          </div>
+          <div class="nav-item ${currentPage==='products'?'active':''}" onclick="navigate('products')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+            Products
+          </div>
+          <div class="nav-item ${currentPage==='users'?'active':''}" onclick="navigate('users')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>
+            Customers
+          </div>
+        </nav>
+        <nav class="nav-section">
+          <div class="nav-label">Store</div>
+          <div class="nav-item" onclick="window.open('https://mrffbusiness.github.io/Bazaar_X/','_blank')">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+            View Store
+          </div>
+          <div class="nav-item" onclick="adminLogout()">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+            Logout
+          </div>
+        </nav>
+        <div class="sidebar-footer">
+          <div class="admin-info">
+            <div class="admin-avatar">A</div>
+            <div><div class="admin-name">Admin</div><div class="admin-role">Super Admin</div></div>
+          </div>
+        </div>
+      </aside>
+      <div class="main">
+        <div class="topbar">
+          <div style="display:flex;align-items:center;gap:12px">
+            <button onclick="document.getElementById('sidebar').classList.toggle('open')" style="display:none;background:none;border:none;font-size:22px;cursor:pointer" id="menuBtn">☰</button>
+            <div class="page-title" id="pageTitle">Dashboard</div>
+          </div>
+          <div class="topbar-actions">
+            <span style="font-size:12px;color:#888">${new Date().toLocaleDateString('en-PK',{weekday:'short',year:'numeric',month:'short',day:'numeric'})}</span>
+            <button class="topbar-btn primary" onclick="navigate('products');setTimeout(showAddProduct,300)">+ Add Product</button>
+          </div>
+        </div>
+        <div class="content" id="pageContent"><div class="loading"><div class="spinner"></div>Loading...</div></div>
+      </div>
+    </div>`;
+  navigate('dashboard');
+}
+
+function adminLogout() { currentUser = null; renderLogin(); }
+
+function navigate(page) {
+  currentPage = page;
+  const titles = { dashboard: 'Dashboard', orders: 'Orders', products: 'Products', users: 'Customers' };
+  document.getElementById('pageTitle') && (document.getElementById('pageTitle').textContent = titles[page] || page);
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('pageContent').innerHTML = loading();
+  if (page === 'dashboard') renderDashboard();
+  else if (page === 'orders') renderOrders();
+  else if (page === 'products') renderProducts();
+  else if (page === 'users') renderUsers();
+}
+
+// ── DASHBOARD ───────────────────────────────
+async function renderDashboard() {
+  const [{ data: orders }, { data: products }, { data: profiles }] = await Promise.all([
+    db.from('orders').select('*'),
+    db.from('products').select('*'),
+    db.from('profiles').select('*'),
+  ]);
+  allOrders = orders || [];
+  allProducts = products || [];
+  allUsers = profiles || [];
+
+  const totalRev = allOrders.filter(o => o.status !== 'cancelled').reduce((a, o) => a + Number(o.total_amount), 0);
+  const pendingOrders = allOrders.filter(o => ['placed', 'confirmed', 'packed', 'shipped'].includes(o.status));
+  const lowStock = allProducts.filter(p => p.stock <= 5);
+
+  document.getElementById('pendingBadge') && (document.getElementById('pendingBadge').textContent = pendingOrders.length);
+
+  // Monthly revenue (last 6 months)
+  const months = [];
+  for (let i = 5; i >= 0; i--) {
+    const d = new Date(); d.setMonth(d.getMonth() - i);
+    const key = d.toLocaleString('default', { month: 'short' });
+    const rev = allOrders.filter(o => {
+      const od = new Date(o.created_at);
+      return od.getMonth() === d.getMonth() && od.getFullYear() === d.getFullYear() && o.status !== 'cancelled';
+    }).reduce((a, o) => a + Number(o.total_amount), 0);
+    months.push({ key, rev });
+  }
+  const maxRev = Math.max(...months.map(m => m.rev), 1);
+
+  const recentOrders = [...allOrders].sort((a, b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+
+  document.getElementById('pageContent').innerHTML = `
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon orange">💰</div>
+        <div><div class="stat-val">${fmt(totalRev)}</div><div class="stat-label">Total Revenue</div><div class="stat-change up">↑ All time</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon blue">📦</div>
+        <div><div class="stat-val">${allOrders.length}</div><div class="stat-label">Total Orders</div><div class="stat-change up">↑ ${pendingOrders.length} pending</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">🛍️</div>
+        <div><div class="stat-val">${allProducts.length}</div><div class="stat-label">Products</div><div class="stat-change ${lowStock.length ? 'down' : 'up'}">${lowStock.length ? '⚠ ' + lowStock.length + ' low stock' : '✓ All stocked'}</div></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple">👥</div>
+        <div><div class="stat-val">${allUsers.length}</div><div class="stat-label">Customers</div><div class="stat-change up">↑ Registered</div></div>
+      </div>
+    </div>
+
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px">
+      <div class="card">
+        <div class="card-header"><div class="card-title">📈 Revenue (Last 6 Months)</div></div>
+        <div class="card-body">
+          <div style="display:flex;gap:8px;align-items:flex-end;height:120px">
+            ${months.map(m => `
+              <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                <div style="font-size:10px;color:#888;white-space:nowrap">${m.rev > 0 ? fmt(m.rev).replace('Rs. ', '') : '0'}</div>
+                <div style="background:var(--orange);border-radius:4px 4px 0 0;width:100%;height:${Math.max(8, Math.round((m.rev / maxRev) * 80))}px;opacity:.85;transition:opacity .15s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=.85"></div>
+                <div style="font-size:11px;color:#888">${m.key}</div>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-header"><div class="card-title">📊 Order Status</div></div>
+        <div class="card-body">
+          ${[['placed','Placed'],['confirmed','Confirmed'],['shipped','Shipped'],['delivered','Delivered'],['cancelled','Cancelled']].map(([s, l]) => {
+            const count = allOrders.filter(o => o.status === s).length;
+            const pct = allOrders.length ? Math.round(count / allOrders.length * 100) : 0;
+            return `<div style="margin-bottom:12px">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px"><span>${l}</span><span style="font-weight:700">${count}</span></div>
+              <div style="height:6px;background:#f0f0f0;border-radius:3px"><div style="height:100%;background:var(--orange);border-radius:3px;width:${pct}%"></div></div>
+            </div>`;
+          }).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">🕐 Recent Orders</div>
+        <button class="btn btn-outline btn-sm" onclick="navigate('orders')">View All</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Order ID</th><th>Customer</th><th>Amount</th><th>Status</th><th>Date</th><th>Action</th></tr></thead>
+          <tbody>
+            ${recentOrders.length ? recentOrders.map(o => `
+              <tr>
+                <td><strong style="color:var(--orange)">${o.order_number}</strong></td>
+                <td>${o.user_id ? o.user_id.slice(0, 8) + '...' : 'Guest'}</td>
+                <td><strong>${fmt(o.total_amount)}</strong></td>
+                <td><span class="badge ${o.status}">${o.status.charAt(0).toUpperCase() + o.status.slice(1)}</span></td>
+                <td>${new Date(o.created_at).toLocaleDateString('en-PK')}</td>
+                <td><button class="btn btn-outline btn-sm" onclick="navigate('orders')">Manage</button></td>
+              </tr>`).join('') :
+            `<tr><td colspan="6"><div class="empty"><div class="empty-icon">📦</div><p>No orders yet</p></div></td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    ${lowStock.length ? `
+    <div class="card">
+      <div class="card-header"><div class="card-title" style="color:var(--red)">⚠️ Low Stock Alert</div></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Product</th><th>Category</th><th>Stock</th><th>Action</th></tr></thead>
+          <tbody>
+            ${lowStock.map(p => `
+              <tr>
+                <td><div class="product-cell"><div class="product-emoji">${p.emoji}</div><span>${p.name}</span></div></td>
+                <td>${p.category}</td>
+                <td><span class="badge ${p.stock === 0 ? 'out' : 'low'}">${p.stock === 0 ? 'Out of Stock' : p.stock + ' left'}</span></td>
+                <td><button class="btn btn-orange btn-sm" onclick="navigate('products')">Update Stock</button></td>
+              </tr>`).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>` : ''}`;
+}
+
+// ── ORDERS ──────────────────────────────────
+async function renderOrders() {
+  const { data } = await db.from('orders').select('*, order_items(*, products(name, emoji))').order('created_at', { ascending: false });
+  allOrders = data || [];
+  document.getElementById('pendingBadge') && (document.getElementById('pendingBadge').textContent = allOrders.filter(o => ['placed','confirmed','packed','shipped'].includes(o.status)).length);
+  renderOrdersTable(allOrders);
+}
+
+function renderOrdersTable(orders) {
+  document.getElementById('pageContent').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">All Orders (${orders.length})</div>
+        <div style="display:flex;gap:8px">
+          <select onchange="filterOrders(this.value)" style="border:1px solid #ddd;border-radius:6px;padding:6px 10px;font-size:13px;outline:none">
+            <option value="">All Status</option>
+            <option>placed</option><option>confirmed</option><option>packed</option><option>shipped</option><option>delivered</option><option>cancelled</option>
+          </select>
+        </div>
+      </div>
+      <div class="filter-bar" style="padding:0 20px 16px">
+        <input type="text" placeholder="Search by order ID..." oninput="searchOrders(this.value)">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Order ID</th><th>Items</th><th>Amount</th><th>Payment</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="ordersBody">
+            ${orders.length ? orders.map(o => orderRow(o)).join('') :
+            `<tr><td colspan="7"><div class="empty"><div class="empty-icon">📦</div><p>No orders found</p></div></td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function orderRow(o) {
+  const items = o.order_items || [];
+  return `<tr>
+    <td><strong style="color:var(--orange);cursor:pointer" onclick="viewOrder(${o.id})">${o.order_number}</strong></td>
+    <td>${items.length} item(s)<br><span style="font-size:11px;color:#888">${items.map(i => i.products?.name || i.product_name).slice(0,2).join(', ')}${items.length > 2 ? '...' : ''}</span></td>
+    <td><strong>${fmt(o.total_amount)}</strong></td>
+    <td>${o.payment_method || 'COD'}</td>
+    <td>
+      <select onchange="updateOrderStatus(${o.id}, this.value)" style="border:1px solid #ddd;border-radius:4px;padding:4px 8px;font-size:12px;outline:none;background:#fff">
+        ${['placed','confirmed','packed','shipped','delivered','cancelled'].map(s => `<option ${o.status===s?'selected':''}>${s}</option>`).join('')}
+      </select>
+    </td>
+    <td style="font-size:12px;color:#888">${new Date(o.created_at).toLocaleDateString('en-PK')}</td>
+    <td>
+      <button class="btn btn-outline btn-sm" onclick="viewOrder(${o.id})">View</button>
+      <button class="btn btn-red btn-sm" onclick="deleteOrder(${o.id}, '${o.order_number}')">Delete</button>
+    </td>
+  </tr>`;
+}
+
+function filterOrders(status) {
+  const filtered = status ? allOrders.filter(o => o.status === status) : allOrders;
+  document.getElementById('ordersBody').innerHTML = filtered.length ?
+    filtered.map(orderRow).join('') :
+    `<tr><td colspan="7"><div class="empty"><p>No orders with status: ${status}</p></div></td></tr>`;
+}
+
+function searchOrders(q) {
+  const filtered = q ? allOrders.filter(o => o.order_number.toLowerCase().includes(q.toLowerCase())) : allOrders;
+  document.getElementById('ordersBody').innerHTML = filtered.map(orderRow).join('');
+}
+
+async function updateOrderStatus(id, status) {
+  const { error } = await db.from('orders').update({ status, updated_at: new Date().toISOString() }).eq('id', id);
+  if (error) { showToast('Failed to update status', 'error'); return; }
+  showToast('✓ Order status updated to: ' + status, 'success');
+  const idx = allOrders.findIndex(o => o.id === id);
+  if (idx !== -1) allOrders[idx].status = status;
+}
+
+function viewOrder(id) {
+  const o = allOrders.find(x => x.id === id);
+  if (!o) return;
+  const items = o.order_items || [];
+  openModal('Order Details — ' + o.order_number, `
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px">
+      <div style="background:#f9f9f9;border-radius:6px;padding:12px"><div style="font-size:11px;color:#888;margin-bottom:4px">Order ID</div><div style="font-weight:700">${o.order_number}</div></div>
+      <div style="background:#f9f9f9;border-radius:6px;padding:12px"><div style="font-size:11px;color:#888;margin-bottom:4px">Date</div><div style="font-weight:700">${new Date(o.created_at).toLocaleString('en-PK')}</div></div>
+      <div style="background:#f9f9f9;border-radius:6px;padding:12px"><div style="font-size:11px;color:#888;margin-bottom:4px">Status</div><span class="badge ${o.status}">${o.status}</span></div>
+      <div style="background:#f9f9f9;border-radius:6px;padding:12px"><div style="font-size:11px;color:#888;margin-bottom:4px">Payment</div><div style="font-weight:700">${o.payment_method || 'COD'}</div></div>
+    </div>
+    <div style="font-weight:700;margin-bottom:10px;font-size:14px">Order Items</div>
+    ${items.map(i => `
+      <div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #f5f5f5">
+        <div style="font-size:28px;width:44px;height:44px;background:#f9f9f9;border-radius:6px;display:flex;align-items:center;justify-content:center">${i.products?.emoji || i.product_emoji || '📦'}</div>
+        <div style="flex:1"><div style="font-size:13px;font-weight:600">${i.products?.name || i.product_name}</div><div style="font-size:12px;color:#888">Qty: ${i.quantity} × ${fmt(i.unit_price)}</div></div>
+        <div style="font-weight:700;color:var(--orange)">${fmt(i.total_price)}</div>
+      </div>`).join('')}
+    <div style="display:flex;justify-content:flex-end;padding-top:12px;font-size:15px;font-weight:800;color:var(--orange)">Total: ${fmt(o.total_amount)}</div>`,
+    `<button class="btn btn-outline" onclick="closeModal()">Close</button>`);
+}
+
+async function deleteOrder(id, num) {
+  if (!confirm('Delete order ' + num + '?')) return;
+  await db.from('order_items').delete().eq('order_id', id);
+  await db.from('orders').delete().eq('id', id);
+  allOrders = allOrders.filter(o => o.id !== id);
+  showToast('Order deleted', 'success');
+  renderOrdersTable(allOrders);
+}
+
+// ── PRODUCTS ────────────────────────────────
+async function renderProducts() {
+  const { data } = await db.from('products').select('*').order('id');
+  allProducts = data || [];
+  renderProductsTable(allProducts);
+}
+
+function renderProductsTable(products) {
+  document.getElementById('pageContent').innerHTML = `
+    <div class="card">
+      <div class="card-header">
+        <div class="card-title">All Products (${products.length})</div>
+        <button class="btn btn-orange" onclick="showAddProduct()">+ Add Product</button>
+      </div>
+      <div class="filter-bar" style="padding:0 20px 16px">
+        <input type="text" placeholder="Search products..." oninput="searchProducts(this.value)">
+        <select onchange="filterProducts(this.value)" style="border:1px solid #ddd;border-radius:6px;padding:8px 12px;font-size:13px;outline:none">
+          <option value="">All Categories</option>
+          ${[...new Set(allProducts.map(p => p.category))].map(c => `<option>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Rating</th><th>Flash</th><th>Actions</th></tr></thead>
+          <tbody id="productsBody">
+            ${products.map(productRow).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+function productRow(p) {
+  return `<tr>
+    <td><div class="product-cell"><div class="product-emoji">${p.emoji}</div><div><div style="font-weight:600;font-size:13px">${p.name}</div><div style="font-size:11px;color:#888">${p.brand}</div></div></div></td>
+    <td><span style="background:#f0f0f0;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:600">${p.category}</span></td>
+    <td><div style="font-weight:700;color:var(--orange)">${fmt(p.price)}</div>${p.old_price?`<div style="font-size:11px;color:#aaa;text-decoration:line-through">${fmt(p.old_price)}</div>`:''}</td>
+    <td><span class="badge ${p.stock === 0 ? 'out' : p.stock <= 5 ? 'low' : 'active'}">${p.stock === 0 ? 'Out' : p.stock}</span></td>
+    <td>⭐ ${p.rating}</td>
+    <td>${p.is_flash_sale ? '<span class="badge delivered">⚡ Yes</span>' : '<span style="color:#aaa;font-size:12px">No</span>'}</td>
+    <td style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn btn-outline btn-sm" onclick="editProduct(${p.id})">Edit</button>
+      <button class="btn btn-red btn-sm" onclick="deleteProduct(${p.id},'${p.name.replace(/'/g,"\\'")}')">Delete</button>
+    </td>
+  </tr>`;
+}
+
+function searchProducts(q) {
+  const filtered = q ? allProducts.filter(p => p.name.toLowerCase().includes(q.toLowerCase()) || p.brand.toLowerCase().includes(q.toLowerCase())) : allProducts;
+  document.getElementById('productsBody').innerHTML = filtered.map(productRow).join('');
+}
+
+function filterProducts(cat) {
+  const filtered = cat ? allProducts.filter(p => p.category === cat) : allProducts;
+  document.getElementById('productsBody').innerHTML = filtered.map(productRow).join('');
+}
+
+function productForm(p = {}) {
+  return `
+    <div class="form-grid">
+      <div class="form-group full"><label>Product Name *</label><input type="text" id="pName" value="${p.name || ''}" placeholder="e.g. Samsung Galaxy S24"></div>
+      <div class="form-group full"><label>Description</label><textarea id="pDesc" placeholder="Product description...">${p.description || ''}</textarea></div>
+      <div class="form-group"><label>Price (Rs.) *</label><input type="number" id="pPrice" value="${p.price || ''}" placeholder="e.g. 50000"></div>
+      <div class="form-group"><label>Old Price (Rs.)</label><input type="number" id="pOldPrice" value="${p.old_price || ''}" placeholder="For discount display"></div>
+      <div class="form-group"><label>Category *</label>
+        <select id="pCat">
+          ${['mobiles','laptops','electronics','fashion','shoes','beauty','home','sports','toys','tablets'].map(c => `<option ${p.category===c?'selected':''}>${c}</option>`).join('')}
+        </select>
+      </div>
+      <div class="form-group"><label>Brand *</label><input type="text" id="pBrand" value="${p.brand || ''}" placeholder="e.g. Samsung"></div>
+      <div class="form-group"><label>Emoji Icon</label><input type="text" id="pEmoji" value="${p.emoji || '📦'}" placeholder="📦"></div>
+      <div class="form-group"><label>Stock Quantity *</label><input type="number" id="pStock" value="${p.stock || 0}" placeholder="e.g. 50"></div>
+      <div class="form-group"><label>Rating (0-5)</label><input type="number" id="pRating" value="${p.rating || 4.5}" min="0" max="5" step="0.1"></div>
+      <div class="form-group"><label>Review Count</label><input type="number" id="pReviews" value="${p.review_count || 0}"></div>
+      <div class="form-group full"><label style="display:flex;align-items:center;gap:8px;cursor:pointer"><input type="checkbox" id="pFlash" ${p.is_flash_sale?'checked':''}> Include in Flash Sale ⚡</label></div>
+    </div>`;
+}
+
+function getFormData() {
+  return {
+    name: document.getElementById('pName').value.trim(),
+    description: document.getElementById('pDesc').value.trim(),
+    price: parseFloat(document.getElementById('pPrice').value),
+    old_price: parseFloat(document.getElementById('pOldPrice').value) || null,
+    category: document.getElementById('pCat').value,
+    brand: document.getElementById('pBrand').value.trim(),
+    emoji: document.getElementById('pEmoji').value.trim() || '📦',
+    stock: parseInt(document.getElementById('pStock').value),
+    rating: parseFloat(document.getElementById('pRating').value),
+    review_count: parseInt(document.getElementById('pReviews').value),
+    is_flash_sale: document.getElementById('pFlash').checked,
+  };
+}
+
+function showAddProduct() {
+  openModal('Add New Product', productForm(),
+    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-orange" onclick="saveNewProduct()">Save Product</button>`);
+}
+
+async function saveNewProduct() {
+  const data = getFormData();
+  if (!data.name || !data.price || !data.brand) { showToast('Please fill required fields', 'error'); return; }
+  const { error } = await db.from('products').insert(data);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast('✓ Product added!', 'success');
+  closeModal();
+  renderProducts();
+}
+
+function editProduct(id) {
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+  openModal('Edit Product', productForm(p),
+    `<button class="btn btn-outline" onclick="closeModal()">Cancel</button>
+     <button class="btn btn-orange" onclick="saveEditProduct(${id})">Save Changes</button>`);
+}
+
+async function saveEditProduct(id) {
+  const data = getFormData();
+  if (!data.name || !data.price) { showToast('Please fill required fields', 'error'); return; }
+  const { error } = await db.from('products').update(data).eq('id', id);
+  if (error) { showToast('Error: ' + error.message, 'error'); return; }
+  showToast('✓ Product updated!', 'success');
+  closeModal();
+  renderProducts();
+}
+
+async function deleteProduct(id, name) {
+  if (!confirm('Delete "' + name + '"?')) return;
+  const { error } = await db.from('products').delete().eq('id', id);
+  if (error) { showToast('Error deleting product', 'error'); return; }
+  allProducts = allProducts.filter(p => p.id !== id);
+  showToast('Product deleted', 'success');
+  renderProductsTable(allProducts);
+}
+
+// ── USERS ───────────────────────────────────
+async function renderUsers() {
+  const { data } = await db.from('profiles').select('*').order('created_at', { ascending: false });
+  allUsers = data || [];
+  document.getElementById('pageContent').innerHTML = `
+    <div class="card">
+      <div class="card-header"><div class="card-title">Registered Customers (${allUsers.length})</div></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Email / ID</th><th>Phone</th><th>City</th><th>Wallet</th><th>Joined</th></tr></thead>
+          <tbody>
+            ${allUsers.length ? allUsers.map(u => `
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px">
+                  <div style="width:34px;height:34px;border-radius:50%;background:var(--orange-light);display:flex;align-items:center;justify-content:center;color:var(--orange);font-weight:700;font-size:13px">${(u.full_name||'U')[0].toUpperCase()}</div>
+                  <span style="font-weight:600">${u.full_name || 'Unknown'}</span>
+                </div></td>
+                <td style="font-size:12px;color:#888">${u.id.slice(0, 16)}...</td>
+                <td>${u.phone || '—'}</td>
+                <td>${u.city || '—'}</td>
+                <td style="font-weight:600;color:var(--green)">${fmt(u.wallet_balance || 0)}</td>
+                <td style="font-size:12px;color:#888">${new Date(u.created_at).toLocaleDateString('en-PK')}</td>
+              </tr>`).join('') :
+            `<tr><td colspan="6"><div class="empty"><div class="empty-icon">👥</div><p>No customers yet</p></div></td></tr>`}
+          </tbody>
+        </table>
+      </div>
+    </div>`;
+}
+
+// ── INIT ────────────────────────────────────
+renderLogin();
+</script>
+</body>
+</html>
