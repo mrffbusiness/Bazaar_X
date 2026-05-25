@@ -10,391 +10,173 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --brand: #E84040;
-    --brand-dark: #B52E2E;
-    --brand-light: #FFF0F0;
-    --gold: #F59E0B;
-    --surface: #FAFAF9;
-    --card: #FFFFFF;
-    --border: #E8E6E1;
-    --border-strong: #D1CFC8;
-    --text: #1A1917;
-    --text-2: #5C5A55;
-    --text-3: #9C9A95;
-    --success: #16A34A;
-    --success-bg: #F0FDF4;
-    --warning: #D97706;
-    --warning-bg: #FFFBEB;
-    --danger: #DC2626;
-    --danger-bg: #FEF2F2;
-    --info: #2563EB;
-    --info-bg: #EFF6FF;
-    --radius: 12px;
-    --radius-sm: 8px;
-    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.04);
-    --shadow-md: 0 4px 12px rgba(0,0,0,0.10), 0 2px 4px rgba(0,0,0,0.06);
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'DM Sans', sans-serif; background: var(--surface); color: var(--text); min-height: 100vh; }
-  h1,h2,h3,h4 { font-family: 'Syne', sans-serif; }
-
-  /* Layout */
-  .app-shell { display: flex; min-height: 100vh; }
-  .sidebar { width: 260px; background: var(--text); flex-shrink: 0; display: flex; flex-direction: column; position: fixed; top: 0; left: 0; height: 100vh; z-index: 100; }
-  .main-content { margin-left: 260px; flex: 1; min-height: 100vh; }
-  .topbar { background: var(--card); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 64px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-  .page { padding: 2rem; max-width: 1100px; }
-
-  /* Sidebar */
-  .sidebar-logo { padding: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
-  .logo-mark { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.5rem; color: #fff; display: flex; align-items: center; gap: 8px; }
-  .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--brand); }
-  .sidebar-nav { flex: 1; padding: 1rem 0; overflow-y: auto; }
-  .nav-section { padding: 0 1rem; margin-bottom: 0.5rem; }
-  .nav-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.3); padding: 0.75rem 0.75rem 0.25rem; font-weight: 600; }
-  .nav-item { display: flex; align-items: center; gap: 10px; padding: 0.625rem 0.75rem; border-radius: var(--radius-sm); cursor: pointer; color: rgba(255,255,255,0.6); font-size: 0.875rem; font-weight: 500; transition: all 0.15s; text-decoration: none; margin-bottom: 2px; }
-  .nav-item:hover { background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.9); }
-  .nav-item.active { background: rgba(232,64,64,0.15); color: #fff; }
-  .nav-item.active .nav-icon { color: var(--brand); }
-  .nav-icon { font-size: 1.1rem; width: 20px; text-align: center; flex-shrink: 0; }
-  .sidebar-footer { padding: 1rem; border-top: 1px solid rgba(255,255,255,0.08); }
-  .user-chip { display: flex; align-items: center; gap: 10px; padding: 0.5rem; border-radius: var(--radius-sm); }
-  .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--brand); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; color: #fff; flex-shrink: 0; }
-  .user-info { flex: 1; min-width: 0; }
-  .user-name { font-size: 0.8rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .user-role { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
-
-  /* Auth screens */
-  .auth-wrap { min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr; }
-  .auth-left { background: var(--text); display: flex; flex-direction: column; justify-content: center; padding: 4rem; position: relative; overflow: hidden; }
-  .auth-left::before { content: ''; position: absolute; top: -100px; right: -100px; width: 400px; height: 400px; border-radius: 50%; background: rgba(232,64,64,0.08); }
-  .auth-left::after { content: ''; position: absolute; bottom: -80px; left: -80px; width: 300px; height: 300px; border-radius: 50%; background: rgba(245,158,11,0.05); }
-  .auth-right { display: flex; align-items: center; justify-content: center; padding: 2rem; background: var(--surface); }
-  .auth-card { background: var(--card); border-radius: 20px; padding: 2.5rem; width: 100%; max-width: 440px; box-shadow: var(--shadow-md); border: 1px solid var(--border); }
-  .auth-tagline { font-family: 'Syne', sans-serif; font-size: 2.5rem; font-weight: 800; color: #fff; line-height: 1.15; margin-bottom: 1rem; }
-  .auth-sub { color: rgba(255,255,255,0.5); font-size: 1rem; line-height: 1.6; }
-
-  /* Forms */
-  .form-group { margin-bottom: 1.25rem; }
-  .form-label { display: block; font-size: 0.8rem; font-weight: 600; color: var(--text-2); margin-bottom: 0.4rem; letter-spacing: 0.02em; text-transform: uppercase; }
-  .form-input { width: 100%; padding: 0.75rem 1rem; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.95rem; font-family: 'DM Sans', sans-serif; color: var(--text); background: var(--card); transition: border-color 0.15s, box-shadow 0.15s; }
-  .form-input:focus { outline: none; border-color: var(--brand); box-shadow: 0 0 0 3px rgba(232,64,64,0.1); }
-  .form-input::placeholder { color: var(--text-3); }
-  .form-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%239C9A95' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
-  .form-textarea { resize: vertical; min-height: 100px; }
-  .form-hint { font-size: 0.75rem; color: var(--text-3); margin-top: 0.3rem; }
-  .form-error { font-size: 0.75rem; color: var(--danger); margin-top: 0.3rem; }
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-
-  /* Buttons */
-  .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 0.75rem 1.5rem; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.9rem; cursor: pointer; border: none; transition: all 0.15s; font-family: 'DM Sans', sans-serif; white-space: nowrap; }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-  .btn-primary { background: var(--brand); color: #fff; }
-  .btn-primary:hover:not(:disabled) { background: var(--brand-dark); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(232,64,64,0.3); }
-  .btn-secondary { background: var(--card); color: var(--text); border: 1.5px solid var(--border); }
-  .btn-secondary:hover:not(:disabled) { border-color: var(--border-strong); background: var(--surface); }
-  .btn-ghost { background: transparent; color: var(--text-2); }
-  .btn-ghost:hover { background: var(--surface); color: var(--text); }
-  .btn-danger { background: var(--danger-bg); color: var(--danger); border: 1.5px solid #FCA5A5; }
-  .btn-danger:hover:not(:disabled) { background: #FEE2E2; }
-  .btn-sm { padding: 0.5rem 1rem; font-size: 0.8rem; }
-  .btn-icon { width: 36px; height: 36px; padding: 0; border-radius: var(--radius-sm); }
-  .btn-full { width: 100%; }
-
-  /* Cards */
-  .card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow); }
-  .card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
-  .card-body { padding: 1.5rem; }
-  .card-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; }
-
-  /* Stats */
-  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 2rem; }
-  .stat-card { background: var(--card); border-radius: var(--radius); border: 1px solid var(--border); padding: 1.25rem; }
-  .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); font-weight: 600; margin-bottom: 0.5rem; }
-  .stat-value { font-family: 'Syne', sans-serif; font-size: 1.75rem; font-weight: 800; color: var(--text); }
-  .stat-sub { font-size: 0.75rem; color: var(--text-3); margin-top: 0.25rem; }
-  .stat-icon { width: 40px; height: 40px; border-radius: var(--radius-sm); display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; font-size: 1.25rem; }
-
-  /* Table */
-  .table-wrap { overflow-x: auto; }
-  table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
-  th { text-align: left; padding: 0.75rem 1rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-3); font-weight: 600; border-bottom: 1px solid var(--border); background: var(--surface); }
-  td { padding: 0.875rem 1rem; border-bottom: 1px solid var(--border); color: var(--text); vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  tr:hover td { background: #FAFAF8; }
-
-  /* Badges */
-  .badge { display: inline-flex; align-items: center; gap: 4px; padding: 0.25rem 0.625rem; border-radius: 100px; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.02em; }
-  .badge-success { background: var(--success-bg); color: var(--success); }
-  .badge-warning { background: var(--warning-bg); color: var(--warning); }
-  .badge-danger { background: var(--danger-bg); color: var(--danger); }
-  .badge-info { background: var(--info-bg); color: var(--info); }
-  .badge-neutral { background: #F1EFE8; color: #5C5A55; }
-  .badge-brand { background: var(--brand-light); color: var(--brand); }
-
-  /* Alerts */
-  .alert { padding: 0.875rem 1rem; border-radius: var(--radius-sm); font-size: 0.875rem; display: flex; align-items: flex-start; gap: 10px; margin-bottom: 1rem; }
-  .alert-success { background: var(--success-bg); color: #14532D; border: 1px solid #BBF7D0; }
-  .alert-danger { background: var(--danger-bg); color: #7F1D1D; border: 1px solid #FCA5A5; }
-  .alert-warning { background: var(--warning-bg); color: #78350F; border: 1px solid #FDE68A; }
-  .alert-info { background: var(--info-bg); color: #1E3A5F; border: 1px solid #BFDBFE; }
-
-  /* Modal */
-  .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; display: flex; align-items: center; justify-content: center; padding: 1rem; backdrop-filter: blur(2px); }
-  .modal { background: var(--card); border-radius: 20px; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
-  .modal-header { padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--card); z-index: 1; border-radius: 20px 20px 0 0; }
-  .modal-body { padding: 1.5rem; }
-  .modal-footer { padding: 1.25rem 1.5rem; border-top: 1px solid var(--border); display: flex; gap: 0.75rem; justify-content: flex-end; }
-
-  /* Pricing banner */
-  .pricing-banner { background: linear-gradient(135deg, #1A1917 0%, #2D2B27 100%); color: #fff; border-radius: var(--radius); padding: 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
-  .pricing-text h3 { font-family: 'Syne', sans-serif; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
-  .pricing-text p { font-size: 0.85rem; color: rgba(255,255,255,0.6); }
-  .pricing-badges { display: flex; gap: 0.5rem; }
-  .pricing-chip { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 100px; padding: 0.4rem 0.875rem; font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.8); white-space: nowrap; }
-  .pricing-chip.highlight { background: rgba(232,64,64,0.2); border-color: rgba(232,64,64,0.3); color: #FCA5A5; }
-
-  /* Page header */
-  .page-header { margin-bottom: 2rem; }
-  .page-title { font-family: 'Syne', sans-serif; font-size: 1.6rem; font-weight: 800; color: var(--text); margin-bottom: 0.25rem; }
-  .page-subtitle { color: var(--text-2); font-size: 0.9rem; }
-
-  /* Products grid */
-  .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
-  .product-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: box-shadow 0.15s, transform 0.15s; }
-  .product-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
-  .product-img { width: 100%; height: 160px; object-fit: cover; background: var(--surface); display: flex; align-items: center; justify-content: center; color: var(--text-3); font-size: 2.5rem; border-bottom: 1px solid var(--border); }
-  .product-body { padding: 1rem; }
-  .product-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .product-cat { font-size: 0.75rem; color: var(--text-3); margin-bottom: 0.5rem; }
-  .product-price { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--brand); }
-  .product-actions { display: flex; gap: 0.5rem; padding: 0.75rem 1rem; border-top: 1px solid var(--border); }
-
-  /* Plan upgrade */
-  .plan-card { border: 2px dashed var(--brand); background: var(--brand-light); border-radius: var(--radius); padding: 2rem; text-align: center; }
-
-  /* Onboarding steps */
-  .steps { display: flex; gap: 0; margin-bottom: 2rem; }
-  .step { flex: 1; display: flex; align-items: center; }
-  .step-dot { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.8rem; flex-shrink: 0; z-index: 1; }
-  .step-dot.done { background: var(--success); color: #fff; }
-  .step-dot.active { background: var(--brand); color: #fff; }
-  .step-dot.upcoming { background: var(--surface); border: 2px solid var(--border); color: var(--text-3); }
-  .step-line { flex: 1; height: 2px; background: var(--border); margin: 0 4px; }
-  .step-line.done { background: var(--success); }
-
-  /* Toggle */
-  .toggle-wrap { display: flex; gap: 1px; background: var(--border); border-radius: var(--radius-sm); padding: 3px; width: fit-content; }
-  .toggle-opt { padding: 0.4rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem; font-weight: 600; color: var(--text-2); transition: all 0.15s; border: none; background: transparent; font-family: inherit; }
-  .toggle-opt.active { background: var(--card); color: var(--text); box-shadow: var(--shadow); }
-
-  /* Loading */
-  .spinner { width: 20px; height: 20px; border: 2.5px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
-  .spinner-dark { border-color: rgba(0,0,0,0.1); border-top-color: var(--text); }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  /* Empty state */
-  .empty-state { text-align: center; padding: 4rem 2rem; }
-  .empty-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.3; }
-  .empty-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1.1rem; color: var(--text); margin-bottom: 0.5rem; }
-  .empty-desc { color: var(--text-3); font-size: 0.875rem; margin-bottom: 1.5rem; }
-
-  /* Divider */
-  .divider { display: flex; align-items: center; gap: 1rem; color: var(--text-3); font-size: 0.8rem; margin: 1.25rem 0; }
-  .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
-
-  /* Util */
-  .flex { display: flex; }
-  .flex-col { flex-direction: column; }
-  .items-center { align-items: center; }
-  .justify-between { justify-content: space-between; }
-  .gap-2 { gap: 0.5rem; }
-  .gap-3 { gap: 0.75rem; }
-  .gap-4 { gap: 1rem; }
-  .mt-1 { margin-top: 0.25rem; }
-  .mt-2 { margin-top: 0.5rem; }
-  .mt-4 { margin-top: 1rem; }
-  .mb-4 { margin-bottom: 1rem; }
-  .mb-6 { margin-bottom: 1.5rem; }
-  .text-sm { font-size: 0.875rem; }
-  .text-xs { font-size: 0.75rem; }
-  .text-muted { color: var(--text-2); }
-  .font-bold { font-weight: 700; }
-  .w-full { width: 100%; }
-  .hidden { display: none; }
-
-  /* Responsive */
-  @media (max-width: 768px) {
-    .sidebar { transform: translateX(-100%); }
-    .main-content { margin-left: 0; }
-    .stats-grid { grid-template-columns: 1fr 1fr; }
-    .auth-wrap { grid-template-columns: 1fr; }
-    .auth-left { display: none; }
-    .form-row { grid-template-columns: 1fr; }
-  }
-
-  /* Image upload */
-  .img-upload { border: 2px dashed var(--border); border-radius: var(--radius-sm); padding: 2rem; text-align: center; cursor: pointer; transition: border-color 0.15s; }
-  .img-upload:hover { border-color: var(--brand); }
-  .img-preview { width: 100%; height: 180px; object-fit: cover; border-radius: var(--radius-sm); }
-
-  /* Search bar */
-  .search-wrap { position: relative; }
-  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--text-3); pointer-events: none; }
-  .search-input { padding-left: 2.5rem !important; }
-
-  /* Topbar actions */
-  .topbar-title { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; color: var(--text); }
-  .plan-chip { background: var(--brand-light); color: var(--brand); border-radius: 100px; padding: 0.3rem 0.75rem; font-size: 0.75rem; font-weight: 700; }
-
-  /* Profile completeness */
-  .progress-bar { height: 6px; background: var(--border); border-radius: 100px; overflow: hidden; }
-  .progress-fill { height: 100%; background: var(--brand); border-radius: 100px; transition: width 0.4s ease; }
-
-  /* Category icon */
-  .cat-icon { font-size: 2rem; }
-
-  /* Payment modal */
-  .payment-amount { font-family: 'Syne', sans-serif; font-size: 2.5rem; font-weight: 800; color: var(--text); text-align: center; padding: 1.5rem 0; }
-  .payment-note { font-size: 0.8rem; color: var(--text-3); text-align: center; }
-
-  /* Settings sections */
-  .settings-section { margin-bottom: 2rem; }
-  .settings-title { font-family: 'Syne', sans-serif; font-size: 1rem; font-weight: 700; color: var(--text); margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border); }
+:root{--brand:#E84040;--brand-dark:#B52E2E;--brand-light:#FFF0F0;--surface:#FAFAF9;--card:#FFFFFF;--border:#E8E6E1;--text:#1A1917;--text-2:#5C5A55;--text-3:#9C9A95;--success:#16A34A;--success-bg:#F0FDF4;--warning:#D97706;--warning-bg:#FFFBEB;--danger:#DC2626;--danger-bg:#FEF2F2;--info:#2563EB;--info-bg:#EFF6FF;--radius:12px;--radius-sm:8px;--shadow:0 1px 3px rgba(0,0,0,.08);--shadow-md:0 4px 12px rgba(0,0,0,.10)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'DM Sans',sans-serif;background:var(--surface);color:var(--text);min-height:100vh}
+h1,h2,h3,h4{font-family:'Syne',sans-serif}
+.app-shell{display:flex;min-height:100vh}
+.sidebar{width:260px;background:var(--text);flex-shrink:0;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:100}
+.main-content{margin-left:260px;flex:1;min-height:100vh}
+.topbar{background:var(--card);border-bottom:1px solid var(--border);padding:0 2rem;height:64px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50}
+.page{padding:2rem;max-width:1100px}
+.sidebar-logo{padding:1.5rem;border-bottom:1px solid rgba(255,255,255,.08)}
+.logo-mark{font-family:'Syne',sans-serif;font-weight:800;font-size:1.5rem;color:#fff;display:flex;align-items:center;gap:8px}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--brand)}
+.sidebar-nav{flex:1;padding:1rem 0;overflow-y:auto}
+.nav-section{padding:0 1rem;margin-bottom:.5rem}
+.nav-label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.3);padding:.75rem .75rem .25rem;font-weight:600}
+.nav-item{display:flex;align-items:center;gap:10px;padding:.625rem .75rem;border-radius:var(--radius-sm);cursor:pointer;color:rgba(255,255,255,.6);font-size:.875rem;font-weight:500;transition:all .15s;text-decoration:none;margin-bottom:2px;border:none;background:none;width:100%;text-align:left;font-family:'DM Sans',sans-serif}
+.nav-item:hover{background:rgba(255,255,255,.06);color:rgba(255,255,255,.9)}
+.nav-item.active{background:rgba(232,64,64,.15);color:#fff}
+.sidebar-footer{padding:1rem;border-top:1px solid rgba(255,255,255,.08)}
+.avatar{width:36px;height:36px;border-radius:50%;background:var(--brand);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.8rem;color:#fff;flex-shrink:0}
+.auth-wrap{min-height:100vh;display:grid;grid-template-columns:1fr 1fr}
+.auth-left{background:var(--text);display:flex;flex-direction:column;justify-content:center;padding:4rem;position:relative;overflow:hidden}
+.auth-left::before{content:'';position:absolute;top:-100px;right:-100px;width:400px;height:400px;border-radius:50%;background:rgba(232,64,64,.08)}
+.auth-right{display:flex;align-items:center;justify-content:center;padding:2rem;background:var(--surface)}
+.auth-card{background:var(--card);border-radius:20px;padding:2.5rem;width:100%;max-width:440px;box-shadow:var(--shadow-md);border:1px solid var(--border)}
+.auth-tagline{font-family:'Syne',sans-serif;font-size:2.2rem;font-weight:800;color:#fff;line-height:1.2;margin-bottom:1rem}
+.form-group{margin-bottom:1.25rem}
+.form-label{display:block;font-size:.8rem;font-weight:600;color:var(--text-2);margin-bottom:.4rem;letter-spacing:.02em;text-transform:uppercase}
+.form-input{width:100%;padding:.75rem 1rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:.95rem;font-family:'DM Sans',sans-serif;color:var(--text);background:var(--card);transition:border-color .15s}
+.form-input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(232,64,64,.1)}
+.form-input::placeholder{color:var(--text-3)}
+.form-select{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%239C9A95' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
+.form-textarea{resize:vertical;min-height:100px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:.75rem 1.5rem;border-radius:var(--radius-sm);font-weight:600;font-size:.9rem;cursor:pointer;border:none;transition:all .15s;font-family:'DM Sans',sans-serif;white-space:nowrap}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.btn-primary{background:var(--brand);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--brand-dark);transform:translateY(-1px);box-shadow:0 4px 12px rgba(232,64,64,.3)}
+.btn-secondary{background:var(--card);color:var(--text);border:1.5px solid var(--border)}
+.btn-secondary:hover:not(:disabled){background:var(--surface)}
+.btn-ghost{background:transparent;color:var(--text-2)}
+.btn-ghost:hover{background:var(--surface)}
+.btn-danger{background:var(--danger-bg);color:var(--danger);border:1.5px solid #FCA5A5}
+.btn-sm{padding:.5rem 1rem;font-size:.8rem}
+.btn-icon{width:36px;height:36px;padding:0}
+.btn-full{width:100%}
+.card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow)}
+.card-header{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-body{padding:1.5rem}
+.card-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem}
+.stat-card{background:var(--card);border-radius:var(--radius);border:1px solid var(--border);padding:1.25rem}
+.alert{padding:.875rem 1rem;border-radius:var(--radius-sm);font-size:.875rem;display:flex;align-items:flex-start;gap:10px;margin-bottom:1rem}
+.alert-success{background:var(--success-bg);color:#14532D;border:1px solid #BBF7D0}
+.alert-danger{background:var(--danger-bg);color:#7F1D1D;border:1px solid #FCA5A5}
+.alert-warning{background:var(--warning-bg);color:#78350F;border:1px solid #FDE68A}
+.alert-info{background:var(--info-bg);color:#1E3A5F;border:1px solid #BFDBFE}
+.modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(2px)}
+.modal{background:var(--card);border-radius:20px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.2)}
+.modal-header{padding:1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--card);z-index:1;border-radius:20px 20px 0 0}
+.modal-body{padding:1.5rem}
+.modal-footer{padding:1.25rem 1.5rem;border-top:1px solid var(--border);display:flex;gap:.75rem;justify-content:flex-end}
+.badge{display:inline-flex;align-items:center;padding:.25rem .625rem;border-radius:100px;font-size:.7rem;font-weight:600}
+.badge-success{background:var(--success-bg);color:var(--success)}
+.badge-warning{background:var(--warning-bg);color:var(--warning)}
+.badge-danger{background:var(--danger-bg);color:var(--danger)}
+.badge-info{background:var(--info-bg);color:var(--info)}
+.badge-neutral{background:#F1EFE8;color:#5C5A55}
+.badge-brand{background:var(--brand-light);color:var(--brand)}
+.page-header{margin-bottom:2rem}
+.page-title{font-family:'Syne',sans-serif;font-size:1.6rem;font-weight:800;margin-bottom:.25rem}
+.page-subtitle{color:var(--text-2);font-size:.9rem}
+.products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:1rem}
+.product-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;transition:box-shadow .15s,transform .15s}
+.product-card:hover{box-shadow:var(--shadow-md);transform:translateY(-2px)}
+.product-img{width:100%;height:140px;background:var(--surface);display:flex;align-items:center;justify-content:center;font-size:2.5rem;border-bottom:1px solid var(--border)}
+.product-body{padding:1rem}
+.product-actions{display:flex;gap:.5rem;padding:.75rem 1rem;border-top:1px solid var(--border)}
+.progress-bar{height:6px;background:var(--border);border-radius:100px;overflow:hidden}
+.progress-fill{height:100%;background:var(--brand);border-radius:100px;transition:width .4s}
+.toggle-wrap{display:flex;gap:1px;background:var(--border);border-radius:var(--radius-sm);padding:3px;width:fit-content}
+.toggle-opt{padding:.4rem 1rem;border-radius:6px;cursor:pointer;font-size:.8rem;font-weight:600;color:var(--text-2);transition:all .15s;border:none;background:transparent;font-family:inherit}
+.toggle-opt.active{background:var(--card);color:var(--text);box-shadow:var(--shadow)}
+.spinner{width:20px;height:20px;border:2.5px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;display:inline-block}
+.spinner-dark{border-color:rgba(0,0,0,.1);border-top-color:var(--text)}
+@keyframes spin{to{transform:rotate(360deg)}}
+.empty-state{text-align:center;padding:4rem 2rem}
+.empty-icon{font-size:3rem;margin-bottom:1rem;opacity:.3}
+.empty-title{font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:.5rem}
+.empty-desc{color:var(--text-3);font-size:.875rem;margin-bottom:1.5rem}
+.divider{display:flex;align-items:center;gap:1rem;color:var(--text-3);font-size:.8rem;margin:1.25rem 0}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+.plan-chip{background:var(--brand-light);color:var(--brand);border-radius:100px;padding:.3rem .75rem;font-size:.75rem;font-weight:700}
+.search-wrap{position:relative}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-3);pointer-events:none}
+.search-input{padding-left:2.5rem!important}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.875rem}
+th{text-align:left;padding:.75rem 1rem;font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-3);font-weight:600;border-bottom:1px solid var(--border);background:var(--surface)}
+td{padding:.875rem 1rem;border-bottom:1px solid var(--border);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#FAFAF8}
+@media(max-width:768px){.sidebar{transform:translateX(-100%)}.main-content{margin-left:0}.stats-grid{grid-template-columns:1fr 1fr}.auth-wrap{grid-template-columns:1fr}.auth-left{display:none}.form-row{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div id="root"></div>
-
 <script type="text/babel">
-const { createClient } = supabase;
-const { useState, useEffect, useCallback, useRef } = React;
+const {createClient} = supabase;
+const {useState, useEffect} = React;
 
-// ─── SUPABASE ────────────────────────────────────────────────────────────────
-const SUPABASE_URL = 'https://eqikgqjgbtjpvmgautli.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxaWtncWpnYnRqcHZtZ2F1dGxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5OTk3NTEsImV4cCI6MjA5NDU3NTc1MX0.sZYsXCKHTNa4AfVAsdT6j5pAtoqeot76XxQ0tn3A0pc';
-const RESEND_KEY = 're_6VuzWxsz_66HBSdV98rwHhZCfuFJraMB8';
-const SITE_URL = 'https://mrffbusiness.github.io/Bazaar_X/';
+const SUPABASE_URL  = 'https://eqikgqjgbtjpvmgautli.supabase.co';
+const SUPABASE_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVxaWtncWpnYnRqcHZtZ2F1dGxpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg5OTk3NTEsImV4cCI6MjA5NDU3NTc1MX0.sZYsXCKHTNa4AfVAsdT6j5pAtoqeot76XxQ0tn3A0pc';
+const RESEND_KEY    = 're_6VuzWxsz_66HBSdV98rwHhZCfuFJraMB8';
+const SITE_URL      = 'https://mrffbusiness.github.io/Bazaar_X/';
+const PORTAL_URL    = 'https://mrffbusiness.github.io/Bazaar_X/bazaarx-seller-portal.html';
 const FREE_LISTINGS = 10;
-const PAID_PRICE = 850;
-
+const PAID_PRICE    = 850;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ─── CATEGORIES ──────────────────────────────────────────────────────────────
-const CATEGORIES = [
-  { value: 'electronics', label: 'Electronics', icon: '💻' },
-  { value: 'fashion', label: 'Fashion & Clothing', icon: '👗' },
-  { value: 'home', label: 'Home & Garden', icon: '🏠' },
-  { value: 'sports', label: 'Sports & Outdoors', icon: '⚽' },
-  { value: 'beauty', label: 'Beauty & Health', icon: '💄' },
-  { value: 'books', label: 'Books & Education', icon: '📚' },
-  { value: 'food', label: 'Food & Grocery', icon: '🛒' },
-  { value: 'toys', label: 'Toys & Kids', icon: '🧸' },
-  { value: 'automotive', label: 'Automotive', icon: '🚗' },
-  { value: 'other', label: 'Other', icon: '📦' },
+const CATS = [
+  {value:'electronics',label:'Electronics',icon:'💻'},
+  {value:'fashion',label:'Fashion & Clothing',icon:'👗'},
+  {value:'home',label:'Home & Garden',icon:'🏠'},
+  {value:'sports',label:'Sports & Outdoors',icon:'⚽'},
+  {value:'beauty',label:'Beauty & Health',icon:'💄'},
+  {value:'books',label:'Books & Education',icon:'📚'},
+  {value:'food',label:'Food & Grocery',icon:'🛒'},
+  {value:'toys',label:'Toys & Kids',icon:'🧸'},
+  {value:'automotive',label:'Automotive',icon:'🚗'},
+  {value:'other',label:'Other',icon:'📦'},
 ];
+const catIcon  = v => CATS.find(c=>c.value===v)?.icon  || '📦';
+const catLabel = v => CATS.find(c=>c.value===v)?.label || v;
 
-const getCatIcon = (val) => CATEGORIES.find(c => c.value === val)?.icon || '📦';
-const getCatLabel = (val) => CATEGORIES.find(c => c.value === val)?.label || val;
-
-// ─── DB HELPERS ──────────────────────────────────────────────────────────────
-async function ensureTables() {
-  try {
-    await sb.rpc('exec_sql', { sql: `
-      CREATE TABLE IF NOT EXISTS bx_sellers (
-        id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-        email text UNIQUE NOT NULL,
-        password_hash text NOT NULL,
-        store_name text NOT NULL,
-        owner_name text NOT NULL,
-        phone text,
-        city text,
-        category text,
-        description text,
-        plan text DEFAULT 'free',
-        listings_count integer DEFAULT 0,
-        total_sales integer DEFAULT 0,
-        created_at timestamptz DEFAULT now()
-      );
-      CREATE TABLE IF NOT EXISTS bx_products (
-        id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-        seller_id uuid REFERENCES bx_sellers(id) ON DELETE CASCADE,
-        name text NOT NULL,
-        description text,
-        price numeric NOT NULL,
-        category text,
-        stock integer DEFAULT 0,
-        images text[],
-        status text DEFAULT 'active',
-        listing_number integer,
-        is_paid boolean DEFAULT false,
-        payment_ref text,
-        views integer DEFAULT 0,
-        created_at timestamptz DEFAULT now()
-      );
-    `});
-  } catch(e) {
-    // Tables might already exist or RPC not available - that's fine
-  }
-}
-
-// Simple hash (not for production)
-function hashPassword(pwd) {
-  let h = 0;
-  for (let i = 0; i < pwd.length; i++) {
-    h = (Math.imul(31, h) + pwd.charCodeAt(i)) | 0;
-  }
-  return 'bx_' + Math.abs(h).toString(36) + pwd.length;
-}
-
-// ─── SEND EMAIL ──────────────────────────────────────────────────────────────
-async function sendWelcomeEmail(email, name, storeName) {
+async function sendWelcomeEmail(email, name, store) {
   try {
     await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${RESEND_KEY}`, 'Content-Type': 'application/json' },
+      method:'POST',
+      headers:{'Authorization':'Bearer '+RESEND_KEY,'Content-Type':'application/json'},
       body: JSON.stringify({
-        from: 'BazaarX <onboarding@resend.dev>',
-        to: [email],
-        subject: `🎉 Welcome to BazaarX, ${name}!`,
-        html: `<div style="font-family:sans-serif;max-width:600px;margin:0 auto;padding:40px 20px;">
-          <div style="background:#E84040;border-radius:12px;padding:32px;text-align:center;margin-bottom:24px;">
-            <h1 style="color:#fff;margin:0;font-size:28px;">Welcome to BazaarX!</h1>
-          </div>
-          <h2 style="color:#1A1917;">Hi ${name},</h2>
-          <p style="color:#5C5A55;line-height:1.6;">Your store <strong>${storeName}</strong> is now live on BazaarX! Start listing your products and reach thousands of customers.</p>
-          <div style="background:#FFF0F0;border-radius:12px;padding:20px;margin:24px 0;">
-            <h3 style="color:#E84040;margin:0 0 8px;">🎁 Your Free Tier Benefits</h3>
-            <p style="color:#5C5A55;margin:0;">List your first <strong>10 products for FREE</strong>. Additional listings are Rs. 850 each.</p>
-          </div>
-          <a href="${SITE_URL}" style="display:inline-block;background:#E84040;color:#fff;padding:14px 32px;border-radius:8px;text-decoration:none;font-weight:600;">Visit BazaarX →</a>
-          <p style="color:#9C9A95;font-size:12px;margin-top:32px;">BazaarX Seller Portal • Pakistan's Growing Marketplace</p>
-        </div>`
+        from:'BazaarX <onboarding@resend.dev>', to:[email],
+        subject:'Welcome to BazaarX, '+name+'!',
+        html:'<div style="font-family:sans-serif;max-width:600px;margin:0 auto"><div style="background:#E84040;padding:24px;text-align:center;border-radius:12px 12px 0 0"><h1 style="color:#fff;margin:0">BazaarX Seller Portal</h1></div><div style="padding:32px"><h2>Hi '+name+'!</h2><p style="color:#555;line-height:1.6">Your store <strong>'+store+'</strong> is live. First 10 listings are FREE!</p><a href="'+PORTAL_URL+'" style="display:inline-block;background:#E84040;color:#fff;padding:12px 28px;border-radius:8px;text-decoration:none;font-weight:700;margin-top:16px">Go to Seller Portal</a></div></div>'
       })
     });
-  } catch(e) { console.log('Email note:', e.message); }
+  } catch(e) { console.log('Email:', e.message); }
 }
 
-// ─── COMPONENTS ──────────────────────────────────────────────────────────────
-
-function Spinner({ dark }) {
-  return <div className={`spinner ${dark ? 'spinner-dark' : ''}`}></div>;
+function Spinner({dark}) {
+  return <span className={'spinner'+(dark?' spinner-dark':'')}></span>;
 }
 
-function Alert({ type, children, onClose }) {
+function Alert({type, children, onClose}) {
+  const icons = {success:'✓',danger:'✕',warning:'⚠',info:'ℹ'};
   return (
-    <div className={`alert alert-${type}`}>
-      <span style={{flexShrink:0}}>{type==='success'?'✓':type==='danger'?'✕':type==='warning'?'⚠':'ℹ'}</span>
+    <div className={'alert alert-'+type}>
+      <span style={{flexShrink:0}}>{icons[type]}</span>
       <span style={{flex:1}}>{children}</span>
       {onClose && <button onClick={onClose} className="btn btn-ghost btn-sm" style={{padding:'0 4px',marginLeft:'auto'}}>✕</button>}
     </div>
   );
 }
 
-function Modal({ title, onClose, children, footer }) {
+function Modal({title, onClose, children, footer}) {
   return (
-    <div className="modal-backdrop" onClick={e => e.target===e.currentTarget && onClose()}>
+    <div className="modal-backdrop" onClick={e=>e.target===e.currentTarget&&onClose()}>
       <div className="modal">
         <div className="modal-header">
           <h3 style={{fontFamily:'Syne',fontWeight:700,fontSize:'1.1rem'}}>{title}</h3>
@@ -407,56 +189,51 @@ function Modal({ title, onClose, children, footer }) {
   );
 }
 
-// ─── AUTH ─────────────────────────────────────────────────────────────────────
+/* ── STEP 1: run this SQL in Supabase to add auth_id column ──────────────────
+   ALTER TABLE bx_sellers ADD COLUMN IF NOT EXISTS auth_id uuid UNIQUE;
+   ─────────────────────────────────────────────────────────────────────────── */
 
-function LoginPage({ onLogin, onGoRegister }) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+function LoginPage({onLogin, onGoRegister, onForgot}) {
+  const [email,setEmail]       = useState('');
+  const [password,setPassword] = useState('');
+  const [loading,setLoading]   = useState(false);
+  const [error,setError]       = useState('');
 
-  async function handleLogin(e) {
-    e.preventDefault();
-    setLoading(true); setError('');
-    try {
-      const { data, error: err } = await sb
-        .from('bx_sellers')
-        .select('*')
-        .eq('email', email.toLowerCase().trim())
-        .single();
-      if (err || !data) { setError('No account found with this email.'); return; }
-      if (data.password_hash !== hashPassword(password)) { setError('Incorrect password.'); return; }
-      onLogin(data);
-    } catch(e) {
-      setError('Connection error. Please check your network.');
-    } finally { setLoading(false); }
+  async function handle(e) {
+    e.preventDefault(); setLoading(true); setError('');
+    const {data,error:err} = await sb.auth.signInWithPassword({email:email.trim(),password});
+    if (err) { setError(err.message); setLoading(false); return; }
+    const {data:seller,error:sErr} = await sb.from('bx_sellers').select('*').eq('auth_id',data.user.id).single();
+    if (sErr||!seller) { setError('Seller profile not found. Please register first.'); setLoading(false); return; }
+    onLogin(seller);
+    setLoading(false);
   }
 
   return (
     <div className="auth-wrap">
       <div className="auth-left">
         <div style={{position:'relative',zIndex:1}}>
-          <div className="logo-mark" style={{marginBottom:'2rem'}}>
-            <div className="logo-dot"></div>
-            BazaarX
-          </div>
+          <div className="logo-mark" style={{marginBottom:'2rem'}}><div className="logo-dot"></div>BazaarX</div>
           <div className="auth-tagline">Your store,<br/>your rules.</div>
-          <p className="auth-sub" style={{marginTop:'1rem'}}>Join thousands of sellers growing their business on Pakistan's smartest marketplace.</p>
+          <p style={{color:'rgba(255,255,255,.5)',fontSize:'1rem',lineHeight:1.6,marginTop:'1rem'}}>Join thousands of sellers on Pakistan's smartest marketplace.</p>
           <div style={{display:'flex',gap:'1rem',marginTop:'2.5rem',flexWrap:'wrap'}}>
             {['10 Free Listings','Real-time Analytics','Instant Setup'].map(f=>(
-              <div key={f} style={{background:'rgba(255,255,255,0.06)',border:'1px solid rgba(255,255,255,0.1)',borderRadius:'100px',padding:'0.4rem 0.875rem',fontSize:'0.75rem',color:'rgba(255,255,255,0.7)',fontWeight:600}}>✓ {f}</div>
+              <div key={f} style={{background:'rgba(255,255,255,.06)',border:'1px solid rgba(255,255,255,.1)',borderRadius:'100px',padding:'.4rem .875rem',fontSize:'.75rem',color:'rgba(255,255,255,.7)',fontWeight:600}}>✓ {f}</div>
             ))}
+          </div>
+          <div style={{marginTop:'2rem',background:'rgba(22,163,74,.15)',border:'1px solid rgba(22,163,74,.3)',borderRadius:'10px',padding:'12px 16px',fontSize:'.8rem',color:'#86EFAC'}}>
+            🔒 Passwords secured with bcrypt via Supabase Auth
           </div>
         </div>
       </div>
       <div className="auth-right">
         <div className="auth-card">
           <div style={{marginBottom:'1.75rem'}}>
-            <h2 style={{fontFamily:'Syne',fontWeight:800,fontSize:'1.6rem',marginBottom:'0.25rem'}}>Welcome back</h2>
-            <p style={{color:'var(--text-2)',fontSize:'0.875rem'}}>Sign in to your seller account</p>
+            <h2 style={{fontFamily:'Syne',fontWeight:800,fontSize:'1.6rem',marginBottom:'.25rem'}}>Welcome back</h2>
+            <p style={{color:'var(--text-2)',fontSize:'.875rem'}}>Sign in to your seller account</p>
           </div>
           {error && <Alert type="danger" onClose={()=>setError('')}>{error}</Alert>}
-          <form onSubmit={handleLogin}>
+          <form onSubmit={handle}>
             <div className="form-group">
               <label className="form-label">Email address</label>
               <input className="form-input" type="email" placeholder="seller@example.com" value={email} onChange={e=>setEmail(e.target.value)} required />
@@ -465,54 +242,110 @@ function LoginPage({ onLogin, onGoRegister }) {
               <label className="form-label">Password</label>
               <input className="form-input" type="password" placeholder="••••••••" value={password} onChange={e=>setPassword(e.target.value)} required />
             </div>
+            <div style={{textAlign:'right',marginBottom:'1rem',marginTop:'-.5rem'}}>
+              <button type="button" onClick={onForgot} style={{background:'none',border:'none',color:'var(--brand)',fontSize:'.8rem',cursor:'pointer',fontWeight:600}}>Forgot password?</button>
+            </div>
             <button className="btn btn-primary btn-full" type="submit" disabled={loading}>
               {loading ? <Spinner /> : 'Sign In'}
             </button>
           </form>
           <div className="divider">or</div>
-          <button className="btn btn-secondary btn-full" onClick={onGoRegister}>
-            Create a new store →
-          </button>
+          <button className="btn btn-secondary btn-full" onClick={onGoRegister}>Create a new store →</button>
         </div>
       </div>
     </div>
   );
 }
 
-function RegisterPage({ onSuccess, onGoLogin }) {
-  const [step, setStep] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [form, setForm] = useState({
-    owner_name:'', email:'', password:'', confirm_password:'',
-    store_name:'', phone:'', city:'', category:'', description:''
-  });
+function ForgotPage({onBack}) {
+  const [email,setEmail]   = useState('');
+  const [loading,setLoading] = useState(false);
+  const [sent,setSent]     = useState(false);
+  const [error,setError]   = useState('');
 
+  async function handle(e) {
+    e.preventDefault(); setLoading(true); setError('');
+    const {error:err} = await sb.auth.resetPasswordForEmail(email.trim(),{redirectTo:PORTAL_URL});
+    if (err) { setError(err.message); setLoading(false); return; }
+    setSent(true); setLoading(false);
+  }
+
+  return (
+    <div className="auth-wrap">
+      <div className="auth-left">
+        <div style={{position:'relative',zIndex:1}}>
+          <div className="logo-mark" style={{marginBottom:'2rem'}}><div className="logo-dot"></div>BazaarX</div>
+          <div className="auth-tagline">Reset your<br/>password.</div>
+          <p style={{color:'rgba(255,255,255,.5)',marginTop:'1rem',lineHeight:1.6}}>We'll send a secure link to your email address.</p>
+        </div>
+      </div>
+      <div className="auth-right">
+        <div className="auth-card">
+          {sent ? (
+            <div style={{textAlign:'center',padding:'1rem 0'}}>
+              <div style={{fontSize:'3rem',marginBottom:'1rem'}}>📧</div>
+              <h2 style={{fontFamily:'Syne',fontWeight:800,fontSize:'1.4rem',marginBottom:'.5rem'}}>Check your email!</h2>
+              <p style={{color:'var(--text-2)',fontSize:'.875rem',marginBottom:'1.5rem'}}>Reset link sent to <strong>{email}</strong></p>
+              <button className="btn btn-secondary btn-full" onClick={onBack}>← Back to Login</button>
+            </div>
+          ) : (
+            <>
+              <div style={{marginBottom:'1.75rem'}}>
+                <h2 style={{fontFamily:'Syne',fontWeight:800,fontSize:'1.6rem',marginBottom:'.25rem'}}>Forgot Password</h2>
+                <p style={{color:'var(--text-2)',fontSize:'.875rem'}}>Enter your email to get a reset link</p>
+              </div>
+              {error && <Alert type="danger" onClose={()=>setError('')}>{error}</Alert>}
+              <form onSubmit={handle}>
+                <div className="form-group">
+                  <label className="form-label">Email address</label>
+                  <input className="form-input" type="email" placeholder="seller@example.com" value={email} onChange={e=>setEmail(e.target.value)} required />
+                </div>
+                <button className="btn btn-primary btn-full" type="submit" disabled={loading}>{loading?<Spinner/>:'Send Reset Link'}</button>
+              </form>
+              <div className="divider">or</div>
+              <button className="btn btn-ghost btn-full" onClick={onBack}>← Back to Login</button>
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RegisterPage({onSuccess, onGoLogin}) {
+  const [step,setStep]     = useState(1);
+  const [loading,setLoading] = useState(false);
+  const [error,setError]   = useState('');
+  const [form,setForm]     = useState({owner_name:'',email:'',password:'',confirm:'',store_name:'',phone:'',city:'',category:'',description:''});
   const set = (k,v) => setForm(p=>({...p,[k]:v}));
 
-  async function handleRegister(e) {
+  async function handle(e) {
     e.preventDefault();
-    if (step === 1) { setStep(2); return; }
-    if (form.password !== form.confirm_password) { setError('Passwords do not match.'); return; }
-    if (form.password.length < 6) { setError('Password must be at least 6 characters.'); return; }
+    if (step===1) { if(form.password!==form.confirm){setError('Passwords do not match.');return;} if(form.password.length<6){setError('Password must be at least 6 characters.');return;} setError(''); setStep(2); return; }
     setLoading(true); setError('');
     try {
-      const { data: existing } = await sb.from('bx_sellers').select('id').eq('email', form.email.toLowerCase().trim()).single();
-      if (existing) { setError('This email is already registered. Please sign in.'); setLoading(false); return; }
-      const { data, error: err } = await sb.from('bx_sellers').insert({
+      // SECURE: Supabase Auth handles password with bcrypt
+      const {data:auth,error:authErr} = await sb.auth.signUp({
         email: form.email.toLowerCase().trim(),
-        password_hash: hashPassword(form.password),
+        password: form.password,
+        options:{data:{full_name:form.owner_name}}
+      });
+      if (authErr) { setError(authErr.message); setLoading(false); return; }
+      const {data:seller,error:sErr} = await sb.from('bx_sellers').insert({
+        auth_id:    auth.user.id,
+        email:      form.email.toLowerCase().trim(),
         store_name: form.store_name.trim(),
         owner_name: form.owner_name.trim(),
-        phone: form.phone, city: form.city,
-        category: form.category, description: form.description
+        phone:      form.phone,
+        city:       form.city,
+        category:   form.category,
+        description:form.description,
       }).select().single();
-      if (err) { setError(err.message); return; }
+      if (sErr) { setError(sErr.message); setLoading(false); return; }
       await sendWelcomeEmail(form.email, form.owner_name, form.store_name);
-      onSuccess(data);
-    } catch(e) {
-      setError('Registration failed. Please try again.');
-    } finally { setLoading(false); }
+      onSuccess(seller);
+    } catch(e) { setError('Registration failed. Please try again.'); }
+    finally { setLoading(false); }
   }
 
   return (
@@ -521,259 +354,177 @@ function RegisterPage({ onSuccess, onGoLogin }) {
         <div style={{position:'relative',zIndex:1}}>
           <div className="logo-mark" style={{marginBottom:'2rem'}}><div className="logo-dot"></div>BazaarX</div>
           <div className="auth-tagline">Start selling<br/>in minutes.</div>
-          <p className="auth-sub" style={{marginTop:'1rem'}}>List your first 10 products for free. No credit card needed.</p>
+          <p style={{color:'rgba(255,255,255,.5)',marginTop:'1rem',lineHeight:1.6}}>First 10 listings free. No credit card needed.</p>
           <div style={{marginTop:'2rem'}}>
             {['Create your store','Add products','Start earning'].map((s,i)=>(
               <div key={s} style={{display:'flex',alignItems:'center',gap:'12px',marginBottom:'1rem'}}>
-                <div style={{width:'28px',height:'28px',borderRadius:'50%',background:step>i?'#E84040':'rgba(255,255,255,0.1)',border:'2px solid',borderColor:step>i?'#E84040':'rgba(255,255,255,0.2)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:'0.75rem',fontWeight:700,flexShrink:0}}>{i+1}</div>
-                <span style={{color:step>i?'rgba(255,255,255,0.9)':'rgba(255,255,255,0.4)',fontSize:'0.9rem'}}>{s}</span>
+                <div style={{width:'28px',height:'28px',borderRadius:'50%',background:step>i?'#E84040':'rgba(255,255,255,.1)',border:'2px solid',borderColor:step>i?'#E84040':'rgba(255,255,255,.2)',display:'flex',alignItems:'center',justifyContent:'center',color:'#fff',fontSize:'.75rem',fontWeight:700,flexShrink:0}}>{i+1}</div>
+                <span style={{color:step>i?'rgba(255,255,255,.9)':'rgba(255,255,255,.4)',fontSize:'.9rem'}}>{s}</span>
               </div>
             ))}
+          </div>
+          <div style={{marginTop:'1rem',background:'rgba(22,163,74,.15)',border:'1px solid rgba(22,163,74,.3)',borderRadius:'10px',padding:'12px 16px',fontSize:'.8rem',color:'#86EFAC'}}>
+            🔒 Secured with bcrypt via Supabase Auth
           </div>
         </div>
       </div>
       <div className="auth-right">
         <div className="auth-card" style={{maxWidth:'480px'}}>
           <div style={{marginBottom:'1.5rem'}}>
-            <div style={{display:'flex',alignItems:'center',gap:'0.5rem',marginBottom:'0.75rem'}}>
-              <span style={{fontSize:'0.75rem',color:'var(--text-3)'}}>Step {step} of 2</span>
+            <div style={{display:'flex',alignItems:'center',gap:'.5rem',marginBottom:'.75rem'}}>
+              <span style={{fontSize:'.75rem',color:'var(--text-3)'}}>Step {step} of 2</span>
               <div style={{flex:1,height:'4px',background:'var(--border)',borderRadius:'100px',overflow:'hidden'}}>
-                <div style={{height:'100%',background:'var(--brand)',width:step===1?'50%':'100%',transition:'width 0.3s',borderRadius:'100px'}}></div>
+                <div style={{height:'100%',background:'var(--brand)',width:step===1?'50%':'100%',transition:'width .3s',borderRadius:'100px'}}></div>
               </div>
             </div>
-            <h2 style={{fontFamily:'Syne',fontWeight:800,fontSize:'1.5rem',marginBottom:'0.25rem'}}>
-              {step===1 ? 'Your account' : 'Your store'}
-            </h2>
-            <p style={{color:'var(--text-2)',fontSize:'0.875rem'}}>{step===1?'Personal details for your account':'Tell customers about your store'}</p>
+            <h2 style={{fontFamily:'Syne',fontWeight:800,fontSize:'1.5rem',marginBottom:'.25rem'}}>{step===1?'Your account':'Your store'}</h2>
+            <p style={{color:'var(--text-2)',fontSize:'.875rem'}}>{step===1?'Secured with Supabase Auth (bcrypt)':'Tell customers about your store'}</p>
           </div>
           {error && <Alert type="danger" onClose={()=>setError('')}>{error}</Alert>}
-          <form onSubmit={handleRegister}>
+          <form onSubmit={handle}>
             {step===1 ? (
               <>
-                <div className="form-group">
-                  <label className="form-label">Full Name</label>
-                  <input className="form-input" placeholder="Muhammad Ali" value={form.owner_name} onChange={e=>set('owner_name',e.target.value)} required />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Email Address</label>
-                  <input className="form-input" type="email" placeholder="you@example.com" value={form.email} onChange={e=>set('email',e.target.value)} required />
-                </div>
+                <div className="form-group"><label className="form-label">Full Name</label><input className="form-input" placeholder="Muhammad Ali" value={form.owner_name} onChange={e=>set('owner_name',e.target.value)} required /></div>
+                <div className="form-group"><label className="form-label">Email Address</label><input className="form-input" type="email" placeholder="you@example.com" value={form.email} onChange={e=>set('email',e.target.value)} required /></div>
                 <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Password</label>
-                    <input className="form-input" type="password" placeholder="Min. 6 chars" value={form.password} onChange={e=>set('password',e.target.value)} required />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Confirm Password</label>
-                    <input className="form-input" type="password" placeholder="Repeat password" value={form.confirm_password} onChange={e=>set('confirm_password',e.target.value)} required />
-                  </div>
+                  <div className="form-group"><label className="form-label">Password</label><input className="form-input" type="password" placeholder="Min. 6 chars" value={form.password} onChange={e=>set('password',e.target.value)} required /></div>
+                  <div className="form-group"><label className="form-label">Confirm</label><input className="form-input" type="password" placeholder="Repeat" value={form.confirm} onChange={e=>set('confirm',e.target.value)} required /></div>
                 </div>
+                <Alert type="success">🔒 Password will be bcrypt hashed by Supabase Auth — not stored in plain text</Alert>
               </>
             ) : (
               <>
-                <div className="form-group">
-                  <label className="form-label">Store Name</label>
-                  <input className="form-input" placeholder="Ali's Electronics" value={form.store_name} onChange={e=>set('store_name',e.target.value)} required />
-                </div>
+                <div className="form-group"><label className="form-label">Store Name</label><input className="form-input" placeholder="Ali's Electronics" value={form.store_name} onChange={e=>set('store_name',e.target.value)} required /></div>
                 <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Phone (WhatsApp)</label>
-                    <input className="form-input" placeholder="+92 300 0000000" value={form.phone} onChange={e=>set('phone',e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">City</label>
-                    <input className="form-input" placeholder="Karachi" value={form.city} onChange={e=>set('city',e.target.value)} />
-                  </div>
+                  <div className="form-group"><label className="form-label">Phone (WhatsApp)</label><input className="form-input" placeholder="+92 300 0000000" value={form.phone} onChange={e=>set('phone',e.target.value)} /></div>
+                  <div className="form-group"><label className="form-label">City</label><input className="form-input" placeholder="Karachi" value={form.city} onChange={e=>set('city',e.target.value)} /></div>
                 </div>
                 <div className="form-group">
                   <label className="form-label">Store Category</label>
                   <select className="form-input form-select" value={form.category} onChange={e=>set('category',e.target.value)} required>
                     <option value="">Select category…</option>
-                    {CATEGORIES.map(c=><option key={c.value} value={c.value}>{c.icon} {c.label}</option>)}
+                    {CATS.map(c=><option key={c.value} value={c.value}>{c.icon} {c.label}</option>)}
                   </select>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Store Description</label>
-                  <textarea className="form-input form-textarea" placeholder="Tell buyers what makes your store special…" value={form.description} onChange={e=>set('description',e.target.value)} rows={3} />
-                </div>
+                <div className="form-group"><label className="form-label">Store Description</label><textarea className="form-input form-textarea" placeholder="Tell buyers what makes your store special…" value={form.description} onChange={e=>set('description',e.target.value)} rows={3} /></div>
               </>
             )}
-            <div style={{display:'flex',gap:'0.75rem',marginTop:'0.5rem'}}>
+            <div style={{display:'flex',gap:'.75rem',marginTop:'.5rem'}}>
               {step===2 && <button type="button" className="btn btn-secondary" onClick={()=>setStep(1)}>← Back</button>}
               <button className="btn btn-primary" style={{flex:1}} type="submit" disabled={loading}>
-                {loading ? <Spinner /> : step===1 ? 'Continue →' : 'Create My Store 🚀'}
+                {loading?<Spinner/>:step===1?'Continue →':'Create My Store 🚀'}
               </button>
             </div>
           </form>
           <div className="divider">already a seller?</div>
-          <button className="btn btn-ghost btn-full" style={{color:'var(--text-2)',fontSize:'0.875rem'}} onClick={onGoLogin}>Sign in to existing account</button>
+          <button className="btn btn-ghost btn-full" style={{color:'var(--text-2)',fontSize:'.875rem'}} onClick={onGoLogin}>Sign in to existing account</button>
         </div>
       </div>
     </div>
   );
 }
 
-// ─── SIDEBAR ──────────────────────────────────────────────────────────────────
-
-function Sidebar({ seller, activeTab, onTab, onLogout }) {
-  const nav = [
-    { id:'dashboard', icon:'📊', label:'Dashboard' },
-    { id:'products', icon:'📦', label:'My Products' },
-    { id:'add-product', icon:'➕', label:'Add Product' },
-    { id:'orders', icon:'🛍️', label:'Orders' },
-    { id:'analytics', icon:'📈', label:'Analytics' },
-    { id:'settings', icon:'⚙️', label:'Settings' },
-  ];
-
-  const initials = seller?.owner_name?.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2) || '?';
-  const used = seller?.listings_count || 0;
-  const freeLeft = Math.max(0, FREE_LISTINGS - used);
-
+function Sidebar({seller, activeTab, onTab, onLogout}) {
+  const nav = [{id:'dashboard',icon:'📊',label:'Dashboard'},{id:'products',icon:'📦',label:'My Products'},{id:'add-product',icon:'➕',label:'Add Product'},{id:'orders',icon:'🛍️',label:'Orders'},{id:'analytics',icon:'📈',label:'Analytics'},{id:'settings',icon:'⚙️',label:'Settings'}];
+  const initials = seller?.owner_name?.split(' ').map(w=>w[0]).join('').toUpperCase().slice(0,2)||'?';
+  const freeLeft = Math.max(0, FREE_LISTINGS-(seller?.listings_count||0));
   return (
     <div className="sidebar">
       <div className="sidebar-logo">
         <div className="logo-mark"><div className="logo-dot"></div>BazaarX</div>
-        <div style={{marginTop:'0.5rem'}}>
-          <div style={{fontSize:'0.7rem',color:'rgba(255,255,255,0.3)',marginBottom:'4px'}}>SELLER PORTAL</div>
-          {freeLeft > 0
-            ? <div style={{fontSize:'0.75rem',color:'rgba(255,255,255,0.5)'}}><span style={{color:'#86EFAC',fontWeight:700}}>{freeLeft}</span> free listings left</div>
-            : <div style={{fontSize:'0.75rem',color:'rgba(255,255,255,0.5)'}}>Rs. {PAID_PRICE} per listing</div>
-          }
+        <div style={{marginTop:'.5rem',fontSize:'.7rem',color:'rgba(255,255,255,.3)'}}>SELLER PORTAL</div>
+        <div style={{fontSize:'.75rem',color:'rgba(255,255,255,.5)',marginTop:'2px'}}>
+          {freeLeft>0?<span><span style={{color:'#86EFAC',fontWeight:700}}>{freeLeft}</span> free listings left</span>:<span>Rs. {PAID_PRICE}/listing</span>}
         </div>
       </div>
       <div className="sidebar-nav">
         <div className="nav-section">
           <div className="nav-label">Main</div>
           {nav.map(item=>(
-            <button key={item.id} className={`nav-item ${activeTab===item.id?'active':''}`} onClick={()=>onTab(item.id)}>
-              <span className="nav-icon">{item.icon}</span>
-              {item.label}
+            <button key={item.id} className={'nav-item'+(activeTab===item.id?' active':'')} onClick={()=>onTab(item.id)}>
+              <span style={{fontSize:'1.1rem',width:'20px',textAlign:'center',flexShrink:0}}>{item.icon}</span>{item.label}
             </button>
           ))}
         </div>
         <div className="nav-section" style={{marginTop:'1rem'}}>
           <div className="nav-label">Store</div>
-          <a className="nav-item" href={SITE_URL} target="_blank" rel="noopener noreferrer">
-            <span className="nav-icon">🌐</span> View Live Store
-          </a>
+          <a className="nav-item" href={SITE_URL} target="_blank" rel="noopener noreferrer"><span style={{fontSize:'1.1rem',width:'20px',textAlign:'center'}}>🌐</span>View Live Store</a>
         </div>
       </div>
       <div className="sidebar-footer">
-        <div className="user-chip">
+        <div style={{display:'flex',alignItems:'center',gap:'10px',padding:'.5rem'}}>
           <div className="avatar">{initials}</div>
-          <div className="user-info">
-            <div className="user-name">{seller?.store_name || 'My Store'}</div>
-            <div className="user-role">{seller?.email}</div>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:'.8rem',fontWeight:600,color:'#fff',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{seller?.store_name||'My Store'}</div>
+            <div style={{fontSize:'.7rem',color:'rgba(255,255,255,.4)'}}>{seller?.email}</div>
           </div>
         </div>
-        <button className="btn btn-ghost btn-full btn-sm" style={{color:'rgba(255,255,255,0.4)',marginTop:'0.5rem',fontSize:'0.75rem'}} onClick={onLogout}>Sign out</button>
+        <button className="btn btn-ghost btn-full btn-sm" style={{color:'rgba(255,255,255,.4)',marginTop:'.5rem',fontSize:'.75rem'}} onClick={onLogout}>Sign out</button>
       </div>
     </div>
   );
 }
 
-// ─── DASHBOARD ────────────────────────────────────────────────────────────────
-
-function Dashboard({ seller, products, onTab }) {
-  const activeProducts = products.filter(p=>p.status==='active').length;
-  const freeLeft = Math.max(0, FREE_LISTINGS - (seller?.listings_count||0));
-  const totalViews = products.reduce((s,p)=>s+(p.views||0),0);
-
+function Dashboard({seller, products, onTab}) {
+  const active   = products.filter(p=>p.status==='active').length;
+  const freeLeft = Math.max(0, FREE_LISTINGS-(seller?.listings_count||0));
+  const views    = products.reduce((s,p)=>s+(p.views||0),0);
   return (
     <div className="page">
       <div className="page-header">
         <div style={{display:'flex',alignItems:'flex-start',justifyContent:'space-between',flexWrap:'wrap',gap:'1rem'}}>
-          <div>
-            <div className="page-title">👋 Hello, {seller?.owner_name?.split(' ')[0]}!</div>
-            <div className="page-subtitle">{seller?.store_name} • {seller?.city || 'Pakistan'}</div>
-          </div>
+          <div><div className="page-title">👋 Hello, {seller?.owner_name?.split(' ')[0]}!</div><div className="page-subtitle">{seller?.store_name} • {seller?.city||'Pakistan'}</div></div>
           <button className="btn btn-primary" onClick={()=>onTab('add-product')}>+ Add Product</button>
         </div>
       </div>
-
-      {freeLeft > 0 ? (
-        <div className="pricing-banner" style={{marginBottom:'1.5rem'}}>
-          <div className="pricing-text">
-            <h3>🎁 Free listings remaining</h3>
-            <p>You've used {seller?.listings_count||0} of your {FREE_LISTINGS} free listings. After that, it's just Rs. 850 per listing.</p>
-          </div>
-          <div className="pricing-badges">
-            <div className="pricing-chip highlight">{freeLeft} FREE left</div>
-            <div className="pricing-chip">Rs. {PAID_PRICE} after</div>
+      {freeLeft>0 ? (
+        <div style={{background:'linear-gradient(135deg,#1A1917,#2D2B27)',color:'#fff',borderRadius:'var(--radius)',padding:'1.5rem',marginBottom:'1.5rem',display:'flex',alignItems:'center',justifyContent:'space-between',gap:'1rem'}}>
+          <div><h3 style={{fontFamily:'Syne',fontWeight:700,fontSize:'1.1rem',marginBottom:'.25rem'}}>🎁 Free listings remaining</h3><p style={{fontSize:'.85rem',color:'rgba(255,255,255,.6)'}}>You've used {seller?.listings_count||0} of your {FREE_LISTINGS} free listings.</p></div>
+          <div style={{display:'flex',gap:'.5rem'}}>
+            <div className="plan-chip" style={{background:'rgba(232,64,64,.2)',borderColor:'rgba(232,64,64,.3)',color:'#FCA5A5'}}>{freeLeft} FREE left</div>
+            <div className="plan-chip" style={{background:'rgba(255,255,255,.08)',color:'rgba(255,255,255,.7)'}}>Rs. {PAID_PRICE} after</div>
           </div>
         </div>
-      ) : (
-        <Alert type="info">You've used all {FREE_LISTINGS} free listings. New listings cost <strong>Rs. {PAID_PRICE}</strong> each.</Alert>
-      )}
-
+      ) : <Alert type="info">All {FREE_LISTINGS} free listings used. New listings cost <strong>Rs. {PAID_PRICE}</strong>.</Alert>}
       <div className="stats-grid">
         {[
-          { label:'Total Listings', value: seller?.listings_count||0, icon:'📦', sub:'products listed', color:'#EFF6FF' },
-          { label:'Active Products', value: activeProducts, icon:'✅', sub:'currently live', color:'#F0FDF4' },
-          { label:'Free Slots Left', value: freeLeft, icon:'🎁', sub:`of ${FREE_LISTINGS} free`, color:'#FFF0F0' },
-          { label:'Total Views', value: totalViews, icon:'👁️', sub:'product views', color:'#FFFBEB' },
+          {label:'Total Listings',value:seller?.listings_count||0,icon:'📦',color:'#EFF6FF'},
+          {label:'Active Products',value:active,icon:'✅',color:'#F0FDF4'},
+          {label:'Free Slots Left',value:freeLeft,icon:'🎁',color:'#FFF0F0'},
+          {label:'Total Views',value:views,icon:'👁️',color:'#FFFBEB'},
         ].map(s=>(
           <div className="stat-card" key={s.label}>
-            <div className="stat-icon" style={{background:s.color}}>{s.icon}</div>
-            <div className="stat-label">{s.label}</div>
-            <div className="stat-value">{s.value.toLocaleString()}</div>
-            <div className="stat-sub">{s.sub}</div>
+            <div style={{width:'40px',height:'40px',borderRadius:'var(--radius-sm)',background:s.color,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.25rem',marginBottom:'1rem'}}>{s.icon}</div>
+            <div style={{fontSize:'.75rem',textTransform:'uppercase',letterSpacing:'.06em',color:'var(--text-3)',fontWeight:600,marginBottom:'.5rem'}}>{s.label}</div>
+            <div style={{fontFamily:'Syne',fontSize:'1.75rem',fontWeight:800}}>{s.value.toLocaleString()}</div>
           </div>
         ))}
       </div>
-
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
-        {/* Recent products */}
         <div className="card">
-          <div className="card-header">
-            <div className="card-title">Recent Products</div>
-            <button className="btn btn-ghost btn-sm" onClick={()=>onTab('products')}>View all →</button>
-          </div>
-          <div>
-            {products.length === 0 ? (
-              <div className="empty-state" style={{padding:'2rem'}}>
-                <div className="empty-icon">📦</div>
-                <div className="empty-title">No products yet</div>
-                <div className="empty-desc">Add your first product to get started</div>
-                <button className="btn btn-primary btn-sm" onClick={()=>onTab('add-product')}>+ Add Product</button>
+          <div className="card-header"><div className="card-title">Recent Products</div><button className="btn btn-ghost btn-sm" onClick={()=>onTab('products')}>View all →</button></div>
+          {products.length===0 ? (
+            <div className="empty-state" style={{padding:'2rem'}}><div className="empty-icon">📦</div><div className="empty-title">No products yet</div><button className="btn btn-primary btn-sm" onClick={()=>onTab('add-product')}>+ Add Product</button></div>
+          ) : products.slice(0,5).map(p=>(
+            <div key={p.id} style={{display:'flex',alignItems:'center',gap:'12px',padding:'.75rem 1.25rem',borderBottom:'1px solid var(--border)'}}>
+              <div style={{width:'36px',height:'36px',borderRadius:'8px',background:'var(--surface)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.25rem',flexShrink:0}}>{catIcon(p.category)}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <div style={{fontWeight:600,fontSize:'.875rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</div>
+                <div style={{fontSize:'.75rem',color:'var(--text-3)'}}>Rs. {Number(p.price).toLocaleString()}</div>
               </div>
-            ) : products.slice(0,5).map(p=>(
-              <div key={p.id} style={{display:'flex',alignItems:'center',gap:'12px',padding:'0.75rem 1.25rem',borderBottom:'1px solid var(--border)'}}>
-                <div style={{width:'36px',height:'36px',borderRadius:'8px',background:'var(--surface)',display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.25rem',flexShrink:0}}>{getCatIcon(p.category)}</div>
-                <div style={{flex:1,minWidth:0}}>
-                  <div style={{fontWeight:600,fontSize:'0.875rem',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{p.name}</div>
-                  <div style={{fontSize:'0.75rem',color:'var(--text-3)'}}>Rs. {Number(p.price).toLocaleString()}</div>
-                </div>
-                <div className={`badge badge-${p.status==='active'?'success':'warning'}`}>{p.status}</div>
+              <div className={'badge badge-'+(p.status==='active'?'success':'warning')}>{p.status}</div>
+            </div>
+          ))}
+        </div>
+        <div className="card">
+          <div className="card-header"><div className="card-title">Store Profile</div><button className="btn btn-ghost btn-sm" onClick={()=>onTab('settings')}>Edit →</button></div>
+          <div className="card-body">
+            {[{l:'Store',v:seller?.store_name,i:'🏪'},{l:'Category',v:seller?.category?catIcon(seller.category)+' '+catLabel(seller.category):'Not set',i:'🏷️'},{l:'Phone',v:seller?.phone||'Not set',i:'📱'},{l:'City',v:seller?.city||'Not set',i:'📍'},{l:'Since',v:seller?.created_at?new Date(seller.created_at).toLocaleDateString('en-PK',{month:'long',year:'numeric'}):'Now',i:'📅'}].map(r=>(
+              <div key={r.l} style={{display:'flex',alignItems:'center',gap:'10px',marginBottom:'1rem'}}>
+                <span>{r.i}</span>
+                <div><div style={{fontSize:'.7rem',color:'var(--text-3)',textTransform:'uppercase',letterSpacing:'.05em',fontWeight:600}}>{r.l}</div><div style={{fontSize:'.875rem',fontWeight:500}}>{r.v}</div></div>
               </div>
             ))}
-          </div>
-        </div>
-
-        {/* Store info */}
-        <div className="card">
-          <div className="card-header">
-            <div className="card-title">Store Profile</div>
-            <button className="btn btn-ghost btn-sm" onClick={()=>onTab('settings')}>Edit →</button>
-          </div>
-          <div className="card-body">
-            <div style={{display:'flex',flexDirection:'column',gap:'1rem'}}>
-              {[
-                { label:'Store Name', value: seller?.store_name, icon:'🏪' },
-                { label:'Category', value: seller?.category ? `${getCatIcon(seller.category)} ${getCatLabel(seller.category)}` : 'Not set', icon:'🏷️' },
-                { label:'Phone', value: seller?.phone || 'Not set', icon:'📱' },
-                { label:'City', value: seller?.city || 'Not set', icon:'📍' },
-                { label:'Member since', value: seller?.created_at ? new Date(seller.created_at).toLocaleDateString('en-PK',{month:'long',year:'numeric'}) : 'Now', icon:'📅' },
-              ].map(row=>(
-                <div key={row.label} style={{display:'flex',alignItems:'center',gap:'10px'}}>
-                  <span>{row.icon}</span>
-                  <div>
-                    <div style={{fontSize:'0.7rem',color:'var(--text-3)',textTransform:'uppercase',letterSpacing:'0.05em',fontWeight:600}}>{row.label}</div>
-                    <div style={{fontSize:'0.875rem',fontWeight:500}}>{row.value}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         </div>
       </div>
@@ -781,277 +532,161 @@ function Dashboard({ seller, products, onTab }) {
   );
 }
 
-// ─── ADD / EDIT PRODUCT ───────────────────────────────────────────────────────
-
-function AddProductPage({ seller, onProductAdded, editProduct, onCancelEdit }) {
+function AddProductPage({seller, onProductAdded, editProduct, onCancelEdit}) {
   const isEdit = !!editProduct;
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState(null);
-  const [showPayment, setShowPayment] = useState(false);
-  const [form, setForm] = useState(editProduct || {
-    name:'', description:'', price:'', category:'', stock:'', images:[]
-  });
-
-  useEffect(() => {
-    if (editProduct) setForm(editProduct);
-  }, [editProduct]);
-
+  const [loading,setLoading]       = useState(false);
+  const [msg,setMsg]               = useState(null);
+  const [showPay,setShowPay]       = useState(false);
+  const [form,setForm]             = useState(editProduct||{name:'',description:'',price:'',category:'',stock:''});
+  useEffect(()=>{if(editProduct)setForm(editProduct);},[editProduct]);
   const set = (k,v) => setForm(p=>({...p,[k]:v}));
-
-  const needsPayment = !isEdit && (seller?.listings_count||0) >= FREE_LISTINGS;
+  const needsPay = !isEdit && (seller?.listings_count||0) >= FREE_LISTINGS;
 
   async function handleSubmit(e) {
     e.preventDefault();
-    if (!form.name.trim() || !form.price || !form.category) {
-      setMsg({type:'danger', text:'Please fill in all required fields.'});
-      return;
-    }
-    if (needsPayment) {
-      setShowPayment(true);
-      return;
-    }
-    await saveProduct(false, null);
+    if(!form.name.trim()||!form.price||!form.category){setMsg({type:'danger',text:'Please fill all required fields.'});return;}
+    if(needsPay){setShowPay(true);return;}
+    await save(false,null);
   }
 
-  async function saveProduct(isPaid, ref) {
+  async function save(isPaid,ref) {
     setLoading(true); setMsg(null);
     try {
-      const payload = {
-        seller_id: seller.id,
-        name: form.name.trim(),
-        description: form.description,
-        price: parseFloat(form.price),
-        category: form.category,
-        stock: parseInt(form.stock)||0,
-        status: 'active',
-        is_paid: isPaid,
-        payment_ref: ref,
-        listing_number: (seller.listings_count||0) + 1,
-      };
-      let res;
+      const p = {seller_id:seller.id,name:form.name.trim(),description:form.description,price:parseFloat(form.price),category:form.category,stock:parseInt(form.stock)||0,status:'active',is_paid:isPaid,payment_ref:ref,listing_number:(seller.listings_count||0)+1};
       if (isEdit) {
-        const { data, error } = await sb.from('bx_products').update(payload).eq('id',editProduct.id).select().single();
-        if (error) throw error;
-        res = data;
-        setMsg({type:'success', text:'Product updated successfully!'});
+        const {data,error} = await sb.from('bx_products').update(p).eq('id',editProduct.id).select().single();
+        if(error)throw error;
+        setMsg({type:'success',text:'Product updated!'});
+        onProductAdded(data,true);
       } else {
-        const { data, error } = await sb.from('bx_products').insert(payload).select().single();
-        if (error) throw error;
-        res = data;
-        // Update listings count
-        await sb.from('bx_sellers').update({ listings_count: (seller.listings_count||0)+1 }).eq('id', seller.id);
-        setMsg({type:'success', text:'Product listed successfully!'});
-        setForm({ name:'', description:'', price:'', category:'', stock:'', images:[] });
+        const {data,error} = await sb.from('bx_products').insert(p).select().single();
+        if(error)throw error;
+        await sb.from('bx_sellers').update({listings_count:(seller.listings_count||0)+1}).eq('id',seller.id);
+        setMsg({type:'success',text:'Product listed!'});
+        setForm({name:'',description:'',price:'',category:'',stock:''});
+        onProductAdded(data,false);
       }
-      onProductAdded(res, isEdit);
-    } catch(err) {
-      setMsg({type:'danger', text: err.message || 'Failed to save product.'});
-    } finally { setLoading(false); setShowPayment(false); }
+    } catch(err){setMsg({type:'danger',text:err.message});}
+    finally{setLoading(false);setShowPay(false);}
   }
 
   return (
     <div className="page">
       <div className="page-header">
-        <div className="flex items-center gap-3">
-          {isEdit && <button className="btn btn-secondary btn-sm" onClick={onCancelEdit}>← Back</button>}
-          <div>
-            <div className="page-title">{isEdit ? 'Edit Product' : 'Add New Product'}</div>
-            <div className="page-subtitle">{isEdit ? 'Update product details' : `Listing #${(seller?.listings_count||0)+1} • ${(seller?.listings_count||0) < FREE_LISTINGS ? 'FREE' : `Rs. ${PAID_PRICE}`}`}</div>
-          </div>
+        <div style={{display:'flex',alignItems:'center',gap:'.75rem'}}>
+          {isEdit&&<button className="btn btn-secondary btn-sm" onClick={onCancelEdit}>← Back</button>}
+          <div><div className="page-title">{isEdit?'Edit Product':'Add New Product'}</div>
+          <div className="page-subtitle">{isEdit?'Update product details':'Listing #'+((seller?.listings_count||0)+1)+' • '+((seller?.listings_count||0)<FREE_LISTINGS?'FREE':'Rs. '+PAID_PRICE)}</div></div>
         </div>
       </div>
-
-      {!isEdit && (seller?.listings_count||0) < FREE_LISTINGS && (
-        <Alert type="success">
-          🎁 This is a <strong>free</strong> listing ({FREE_LISTINGS - (seller?.listings_count||0)} free slots remaining)
-        </Alert>
-      )}
-      {!isEdit && needsPayment && (
-        <Alert type="warning">
-          💳 You've used all free listings. This listing will cost <strong>Rs. {PAID_PRICE}</strong>.
-        </Alert>
-      )}
-      {msg && <Alert type={msg.type} onClose={()=>setMsg(null)}>{msg.text}</Alert>}
-
+      {!isEdit&&(seller?.listings_count||0)<FREE_LISTINGS&&<Alert type="success">🎁 This is a <strong>free</strong> listing ({FREE_LISTINGS-(seller?.listings_count||0)} slots left)</Alert>}
+      {!isEdit&&needsPay&&<Alert type="warning">💳 All free listings used. This costs <strong>Rs. {PAID_PRICE}</strong>.</Alert>}
+      {msg&&<Alert type={msg.type} onClose={()=>setMsg(null)}>{msg.text}</Alert>}
       <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:'1.5rem'}}>
-        <div>
-          <div className="card">
-            <div className="card-header"><div className="card-title">Product Details</div></div>
-            <div className="card-body">
-              <form onSubmit={handleSubmit}>
-                <div className="form-group">
-                  <label className="form-label">Product Name *</label>
-                  <input className="form-input" placeholder="e.g. Samsung 65-inch 4K Smart TV" value={form.name} onChange={e=>set('name',e.target.value)} required />
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Description</label>
-                  <textarea className="form-input form-textarea" placeholder="Describe your product…" value={form.description||''} onChange={e=>set('description',e.target.value)} rows={4} />
-                </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Price (Rs.) *</label>
-                    <input className="form-input" type="number" min="1" placeholder="0" value={form.price} onChange={e=>set('price',e.target.value)} required />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Stock Quantity</label>
-                    <input className="form-input" type="number" min="0" placeholder="0" value={form.stock} onChange={e=>set('stock',e.target.value)} />
-                  </div>
-                </div>
-                <div className="form-group">
-                  <label className="form-label">Category *</label>
-                  <select className="form-input form-select" value={form.category} onChange={e=>set('category',e.target.value)} required>
-                    <option value="">Select category…</option>
-                    {CATEGORIES.map(c=><option key={c.value} value={c.value}>{c.icon} {c.label}</option>)}
-                  </select>
-                </div>
-                <div style={{display:'flex',gap:'0.75rem',marginTop:'0.5rem'}}>
-                  {isEdit && <button type="button" className="btn btn-secondary" onClick={onCancelEdit}>Cancel</button>}
-                  <button className="btn btn-primary" style={{flex:1}} type="submit" disabled={loading}>
-                    {loading ? <><Spinner /> Saving…</> : isEdit ? 'Save Changes' : needsPayment ? `Pay Rs. ${PAID_PRICE} & List` : 'List Product for Free'}
-                  </button>
-                </div>
-              </form>
-            </div>
+        <div className="card">
+          <div className="card-header"><div className="card-title">Product Details</div></div>
+          <div className="card-body">
+            <form onSubmit={handleSubmit}>
+              <div className="form-group"><label className="form-label">Product Name *</label><input className="form-input" placeholder="e.g. Samsung 65-inch 4K TV" value={form.name} onChange={e=>set('name',e.target.value)} required /></div>
+              <div className="form-group"><label className="form-label">Description</label><textarea className="form-input form-textarea" placeholder="Describe your product…" value={form.description||''} onChange={e=>set('description',e.target.value)} rows={4} /></div>
+              <div className="form-row">
+                <div className="form-group"><label className="form-label">Price (Rs.) *</label><input className="form-input" type="number" min="1" placeholder="0" value={form.price} onChange={e=>set('price',e.target.value)} required /></div>
+                <div className="form-group"><label className="form-label">Stock</label><input className="form-input" type="number" min="0" placeholder="0" value={form.stock} onChange={e=>set('stock',e.target.value)} /></div>
+              </div>
+              <div className="form-group">
+                <label className="form-label">Category *</label>
+                <select className="form-input form-select" value={form.category} onChange={e=>set('category',e.target.value)} required>
+                  <option value="">Select category…</option>
+                  {CATS.map(c=><option key={c.value} value={c.value}>{c.icon} {c.label}</option>)}
+                </select>
+              </div>
+              <div style={{display:'flex',gap:'.75rem',marginTop:'.5rem'}}>
+                {isEdit&&<button type="button" className="btn btn-secondary" onClick={onCancelEdit}>Cancel</button>}
+                <button className="btn btn-primary" style={{flex:1}} type="submit" disabled={loading}>
+                  {loading?<><Spinner/> Saving…</>:isEdit?'Save Changes':needsPay?'Pay Rs. '+PAID_PRICE+' & List':'List for Free'}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
-
-        <div>
-          <div className="card" style={{marginBottom:'1rem'}}>
-            <div className="card-header"><div className="card-title">Preview</div></div>
-            <div className="card-body">
-              <div style={{textAlign:'center',marginBottom:'1rem'}}>
-                <div style={{width:'80px',height:'80px',borderRadius:'12px',background:'var(--surface)',border:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto',fontSize:'2.5rem'}}>
-                  {form.category ? getCatIcon(form.category) : '📦'}
-                </div>
-              </div>
-              <div style={{fontWeight:700,fontSize:'0.95rem',marginBottom:'0.25rem',textAlign:'center'}}>{form.name||'Product Name'}</div>
-              <div style={{textAlign:'center',color:'var(--brand)',fontFamily:'Syne',fontWeight:700,fontSize:'1.25rem'}}>
-                {form.price ? `Rs. ${Number(form.price).toLocaleString()}` : 'Rs. 0'}
-              </div>
-              {form.stock && <div style={{textAlign:'center',fontSize:'0.75rem',color:'var(--text-3)',marginTop:'0.25rem'}}>{form.stock} in stock</div>}
-              <div style={{marginTop:'0.75rem',display:'flex',justifyContent:'center'}}>
-                <div className={`badge badge-${form.category?'success':'neutral'}`}>{form.category ? getCatLabel(form.category) : 'No category'}</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="card">
-            <div className="card-header"><div className="card-title">Listing Info</div></div>
-            <div className="card-body" style={{fontSize:'0.8rem',color:'var(--text-2)',lineHeight:'1.8'}}>
-              <div>📦 Listings used: <strong>{seller?.listings_count||0}</strong></div>
-              <div>🎁 Free listings: <strong>{FREE_LISTINGS}</strong></div>
-              <div>💰 Next paid: <strong>Rs. {PAID_PRICE}</strong></div>
-              {!isEdit && <div style={{marginTop:'0.5rem',padding:'0.5rem',background:'var(--surface)',borderRadius:'6px',border:'1px solid var(--border)'}}>
-                {needsPayment ? <span style={{color:'var(--warning)'}}>⚠ Payment required</span> : <span style={{color:'var(--success)'}}>✓ This listing is free</span>}
-              </div>}
-            </div>
+        <div className="card">
+          <div className="card-header"><div className="card-title">Preview</div></div>
+          <div className="card-body" style={{textAlign:'center'}}>
+            <div style={{width:'80px',height:'80px',borderRadius:'12px',background:'var(--surface)',border:'1px solid var(--border)',display:'flex',alignItems:'center',justifyContent:'center',margin:'0 auto 1rem',fontSize:'2.5rem'}}>{form.category?catIcon(form.category):'📦'}</div>
+            <div style={{fontWeight:700,fontSize:'.95rem',marginBottom:'.25rem'}}>{form.name||'Product Name'}</div>
+            <div style={{color:'var(--brand)',fontFamily:'Syne',fontWeight:700,fontSize:'1.25rem'}}>{form.price?'Rs. '+Number(form.price).toLocaleString():'Rs. 0'}</div>
+            {form.stock&&<div style={{fontSize:'.75rem',color:'var(--text-3)',marginTop:'.25rem'}}>{form.stock} in stock</div>}
           </div>
         </div>
       </div>
-
-      {showPayment && (
-        <Modal title="Complete Payment" onClose={()=>setShowPayment(false)}
-          footer={
-            <>
-              <button className="btn btn-secondary" onClick={()=>setShowPayment(false)}>Cancel</button>
-              <button className="btn btn-primary" onClick={()=>saveProduct(true,'PAY-'+Date.now())} disabled={loading}>
-                {loading ? <Spinner /> : 'Confirm Payment & List'}
-              </button>
-            </>
-          }
-        >
+      {showPay&&(
+        <Modal title="Complete Payment" onClose={()=>setShowPay(false)}
+          footer={<><button className="btn btn-secondary" onClick={()=>setShowPay(false)}>Cancel</button><button className="btn btn-primary" onClick={()=>save(true,'PAY-'+Date.now())} disabled={loading}>{loading?<Spinner/>:'Confirm & List'}</button></>}>
           <div style={{textAlign:'center',padding:'1rem 0'}}>
-            <div style={{fontSize:'3rem',marginBottom:'0.5rem'}}>💳</div>
-            <div className="payment-amount">Rs. {PAID_PRICE.toLocaleString()}</div>
-            <div className="payment-note">for listing "{form.name || 'this product'}"</div>
+            <div style={{fontSize:'3rem',marginBottom:'.5rem'}}>💳</div>
+            <div style={{fontFamily:'Syne',fontSize:'2.5rem',fontWeight:800,padding:'1rem 0'}}>Rs. {PAID_PRICE.toLocaleString()}</div>
           </div>
-          <Alert type="info">In a live environment, this would connect to JazzCash / EasyPaisa. For now, confirm to simulate payment.</Alert>
-          <div style={{background:'var(--surface)',borderRadius:'8px',padding:'1rem',fontSize:'0.85rem',lineHeight:'1.8'}}>
-            <div>📦 Product: <strong>{form.name}</strong></div>
-            <div>💰 Price: <strong>Rs. {form.price ? Number(form.price).toLocaleString() : 0}</strong></div>
-            <div>🏷️ Listing fee: <strong>Rs. {PAID_PRICE}</strong></div>
-          </div>
+          <Alert type="info">In production this connects to JazzCash/EasyPaisa. Click confirm to simulate.</Alert>
         </Modal>
       )}
     </div>
   );
 }
 
-// ─── PRODUCTS LIST ────────────────────────────────────────────────────────────
+function ProductsPage({products, onEdit, onDelete, onRefresh}) {
+  const [search,setSearch] = useState('');
+  const [cat,setCat]       = useState('all');
+  const [view,setView]     = useState('grid');
+  const [del,setDel]       = useState(null);
+  const [deleting,setDeleting] = useState(null);
 
-function ProductsPage({ products, onEdit, onDelete, onRefresh }) {
-  const [search, setSearch] = useState('');
-  const [catFilter, setCatFilter] = useState('all');
-  const [view, setView] = useState('grid');
-  const [deleting, setDeleting] = useState(null);
-  const [confirmDel, setConfirmDel] = useState(null);
+  const filtered = products.filter(p=>p.name.toLowerCase().includes(search.toLowerCase())&&(cat==='all'||p.category===cat));
 
-  const filtered = products.filter(p => {
-    const matchSearch = p.name.toLowerCase().includes(search.toLowerCase());
-    const matchCat = catFilter === 'all' || p.category === catFilter;
-    return matchSearch && matchCat;
-  });
-
-  async function handleDelete(id) {
+  async function doDelete(id) {
     setDeleting(id);
-    try {
-      await sb.from('bx_products').delete().eq('id', id);
-      onDelete(id);
-    } catch(e) {
-      console.error(e);
-    } finally { setDeleting(null); setConfirmDel(null); }
+    await sb.from('bx_products').delete().eq('id',id);
+    onDelete(id); setDeleting(null); setDel(null);
   }
 
   return (
     <div className="page">
-      <div className="page-header flex items-center justify-between">
-        <div>
-          <div className="page-title">My Products</div>
-          <div className="page-subtitle">{products.length} products listed</div>
-        </div>
+      <div className="page-header" style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
+        <div><div className="page-title">My Products</div><div className="page-subtitle">{products.length} products listed</div></div>
         <button className="btn btn-secondary btn-sm" onClick={onRefresh}>↻ Refresh</button>
       </div>
-
-      <div style={{display:'flex',gap:'0.75rem',marginBottom:'1.5rem',flexWrap:'wrap',alignItems:'center'}}>
+      <div style={{display:'flex',gap:'.75rem',marginBottom:'1.5rem',flexWrap:'wrap',alignItems:'center'}}>
         <div className="search-wrap" style={{flex:1,minWidth:'200px'}}>
           <span className="search-icon">🔍</span>
           <input className="form-input search-input" placeholder="Search products…" value={search} onChange={e=>setSearch(e.target.value)} />
         </div>
-        <select className="form-input form-select" style={{width:'auto'}} value={catFilter} onChange={e=>setCatFilter(e.target.value)}>
+        <select className="form-input form-select" style={{width:'auto'}} value={cat} onChange={e=>setCat(e.target.value)}>
           <option value="all">All categories</option>
-          {CATEGORIES.map(c=><option key={c.value} value={c.value}>{c.icon} {c.label}</option>)}
+          {CATS.map(c=><option key={c.value} value={c.value}>{c.icon} {c.label}</option>)}
         </select>
         <div className="toggle-wrap">
-          <button className={`toggle-opt ${view==='grid'?'active':''}`} onClick={()=>setView('grid')}>⊞ Grid</button>
-          <button className={`toggle-opt ${view==='list'?'active':''}`} onClick={()=>setView('list')}>≡ List</button>
+          <button className={'toggle-opt'+(view==='grid'?' active':'')} onClick={()=>setView('grid')}>⊞ Grid</button>
+          <button className={'toggle-opt'+(view==='list'?' active':'')} onClick={()=>setView('list')}>≡ List</button>
         </div>
       </div>
-
-      {filtered.length === 0 ? (
-        <div className="empty-state">
-          <div className="empty-icon">📦</div>
-          <div className="empty-title">{search || catFilter!=='all' ? 'No products match your filters' : 'No products yet'}</div>
-          <div className="empty-desc">{search || catFilter!=='all' ? 'Try a different search or category' : 'Start by adding your first product'}</div>
-        </div>
-      ) : view === 'grid' ? (
+      {filtered.length===0 ? (
+        <div className="empty-state"><div className="empty-icon">📦</div><div className="empty-title">No products found</div><div className="empty-desc">Try a different search or category</div></div>
+      ) : view==='grid' ? (
         <div className="products-grid">
           {filtered.map(p=>(
             <div key={p.id} className="product-card">
-              <div className="product-img">{getCatIcon(p.category)}</div>
+              <div className="product-img">{catIcon(p.category)}</div>
               <div className="product-body">
-                <div className="product-name">{p.name}</div>
-                <div className="product-cat">{getCatLabel(p.category)}</div>
+                <div style={{fontWeight:700,fontSize:'.95rem',marginBottom:'.25rem',overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.name}</div>
+                <div style={{fontSize:'.75rem',color:'var(--text-3)',marginBottom:'.5rem'}}>{catLabel(p.category)}</div>
                 <div style={{display:'flex',alignItems:'center',justifyContent:'space-between'}}>
-                  <div className="product-price">Rs. {Number(p.price).toLocaleString()}</div>
-                  <div className={`badge badge-${p.status==='active'?'success':'warning'}`}>{p.status}</div>
+                  <div style={{color:'var(--brand)',fontFamily:'Syne',fontWeight:700,fontSize:'1.1rem'}}>Rs. {Number(p.price).toLocaleString()}</div>
+                  <div className={'badge badge-'+(p.status==='active'?'success':'warning')}>{p.status}</div>
                 </div>
-                <div style={{fontSize:'0.75rem',color:'var(--text-3)',marginTop:'0.25rem'}}>Stock: {p.stock||0} • {p.is_paid?'Paid':'Free'} listing</div>
+                <div style={{fontSize:'.75rem',color:'var(--text-3)',marginTop:'.25rem'}}>Stock: {p.stock||0} • {p.is_paid?'Paid':'Free'}</div>
               </div>
               <div className="product-actions">
                 <button className="btn btn-secondary btn-sm" style={{flex:1}} onClick={()=>onEdit(p)}>✏️ Edit</button>
-                <button className="btn btn-danger btn-sm" onClick={()=>setConfirmDel(p)} disabled={deleting===p.id}>
-                  {deleting===p.id ? <Spinner dark /> : '🗑️'}
-                </button>
+                <button className="btn btn-danger btn-sm" onClick={()=>setDel(p)}>{deleting===p.id?<Spinner dark/>:'🗑️'}</button>
               </div>
             </div>
           ))}
@@ -1060,154 +695,73 @@ function ProductsPage({ products, onEdit, onDelete, onRefresh }) {
         <div className="card">
           <div className="table-wrap">
             <table>
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Category</th>
-                  <th>Price</th>
-                  <th>Stock</th>
-                  <th>Status</th>
-                  <th>Type</th>
-                  <th>Actions</th>
+              <thead><tr><th>Product</th><th>Category</th><th>Price</th><th>Stock</th><th>Status</th><th>Type</th><th>Actions</th></tr></thead>
+              <tbody>{filtered.map(p=>(
+                <tr key={p.id}>
+                  <td><div style={{fontWeight:600}}>{p.name}</div></td>
+                  <td>{catIcon(p.category)} {catLabel(p.category)}</td>
+                  <td style={{fontWeight:700,color:'var(--brand)'}}>Rs. {Number(p.price).toLocaleString()}</td>
+                  <td>{p.stock||0}</td>
+                  <td><div className={'badge badge-'+(p.status==='active'?'success':'warning')}>{p.status}</div></td>
+                  <td><div className={'badge badge-'+(p.is_paid?'info':'brand')}>{p.is_paid?'Paid':'Free'}</div></td>
+                  <td><div style={{display:'flex',gap:'.5rem'}}><button className="btn btn-secondary btn-sm" onClick={()=>onEdit(p)}>Edit</button><button className="btn btn-danger btn-sm" onClick={()=>setDel(p)}>Del</button></div></td>
                 </tr>
-              </thead>
-              <tbody>
-                {filtered.map(p=>(
-                  <tr key={p.id}>
-                    <td><div style={{fontWeight:600}}>{p.name}</div></td>
-                    <td>{getCatIcon(p.category)} {getCatLabel(p.category)}</td>
-                    <td style={{fontWeight:700,color:'var(--brand)'}}>Rs. {Number(p.price).toLocaleString()}</td>
-                    <td>{p.stock||0}</td>
-                    <td><div className={`badge badge-${p.status==='active'?'success':'warning'}`}>{p.status}</div></td>
-                    <td><div className={`badge badge-${p.is_paid?'info':'brand'}`}>{p.is_paid?'Paid':'Free'}</div></td>
-                    <td>
-                      <div style={{display:'flex',gap:'0.5rem'}}>
-                        <button className="btn btn-secondary btn-sm" onClick={()=>onEdit(p)}>Edit</button>
-                        <button className="btn btn-danger btn-sm" onClick={()=>setConfirmDel(p)}>Del</button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
+              ))}</tbody>
             </table>
           </div>
         </div>
       )}
-
-      {confirmDel && (
-        <Modal title="Delete Product" onClose={()=>setConfirmDel(null)}
-          footer={
-            <>
-              <button className="btn btn-secondary" onClick={()=>setConfirmDel(null)}>Cancel</button>
-              <button className="btn btn-danger" onClick={()=>handleDelete(confirmDel.id)} disabled={deleting===confirmDel.id}>
-                {deleting===confirmDel.id ? <Spinner dark /> : 'Yes, Delete'}
-              </button>
-            </>
-          }
-        >
-          <Alert type="danger">Are you sure you want to delete <strong>"{confirmDel.name}"</strong>? This cannot be undone.</Alert>
+      {del&&(
+        <Modal title="Delete Product" onClose={()=>setDel(null)}
+          footer={<><button className="btn btn-secondary" onClick={()=>setDel(null)}>Cancel</button><button className="btn btn-danger" onClick={()=>doDelete(del.id)} disabled={deleting===del.id}>{deleting===del.id?<Spinner dark/>:'Yes, Delete'}</button></>}>
+          <Alert type="danger">Delete <strong>"{del.name}"</strong>? This cannot be undone.</Alert>
         </Modal>
       )}
     </div>
   );
 }
 
-// ─── ORDERS ───────────────────────────────────────────────────────────────────
-
-function OrdersPage() {
+function AnalyticsPage({seller, products}) {
+  const byC = CATS.map(c=>({...c,count:products.filter(p=>p.category===c.value).length})).filter(c=>c.count>0);
+  const free = products.filter(p=>!p.is_paid).length;
+  const paid = products.filter(p=>p.is_paid).length;
   return (
     <div className="page">
-      <div className="page-header">
-        <div className="page-title">Orders</div>
-        <div className="page-subtitle">Customer orders will appear here</div>
-      </div>
-      <div className="card">
-        <div className="empty-state">
-          <div className="empty-icon">🛍️</div>
-          <div className="empty-title">No orders yet</div>
-          <div className="empty-desc">When customers place orders on BazaarX, they'll appear here with full details.</div>
-        </div>
-      </div>
-      <Alert type="info" style={{marginTop:'1rem'}}>
-        Orders module connects to BazaarX customer-facing store. Visit <a href={SITE_URL} target="_blank" style={{color:'var(--info)'}}>BazaarX Marketplace</a> to see your products live.
-      </Alert>
-    </div>
-  );
-}
-
-// ─── ANALYTICS ────────────────────────────────────────────────────────────────
-
-function AnalyticsPage({ seller, products }) {
-  const byCategory = CATEGORIES.map(c => ({
-    ...c, count: products.filter(p=>p.category===c.value).length
-  })).filter(c=>c.count>0);
-
-  const freeListings = products.filter(p=>!p.is_paid).length;
-  const paidListings = products.filter(p=>p.is_paid).length;
-  const totalSpent = paidListings * PAID_PRICE;
-  const activeCount = products.filter(p=>p.status==='active').length;
-
-  return (
-    <div className="page">
-      <div className="page-header">
-        <div className="page-title">Analytics</div>
-        <div className="page-subtitle">Your store performance overview</div>
-      </div>
-
+      <div className="page-header"><div className="page-title">Analytics</div><div className="page-subtitle">Store performance overview</div></div>
       <div className="stats-grid" style={{gridTemplateColumns:'repeat(3,1fr)'}}>
-        {[
-          { label:'Total Products', value: products.length, icon:'📦', color:'#EFF6FF' },
-          { label:'Active Listings', value: activeCount, icon:'✅', color:'#F0FDF4' },
-          { label:'Listing Spend', value: `Rs. ${totalSpent.toLocaleString()}`, icon:'💳', color:'#FFF0F0' },
-        ].map(s=>(
-          <div className="stat-card" key={s.label}>
-            <div className="stat-icon" style={{background:s.color}}>{s.icon}</div>
-            <div className="stat-label">{s.label}</div>
-            <div className="stat-value" style={{fontSize:'1.5rem'}}>{s.value}</div>
+        {[{l:'Total Products',v:products.length,i:'📦',c:'#EFF6FF'},{l:'Active Listings',v:products.filter(p=>p.status==='active').length,i:'✅',c:'#F0FDF4'},{l:'Listing Spend',v:'Rs. '+(paid*PAID_PRICE).toLocaleString(),i:'💳',c:'#FFF0F0'}].map(s=>(
+          <div className="stat-card" key={s.l}>
+            <div style={{width:'40px',height:'40px',borderRadius:'var(--radius-sm)',background:s.c,display:'flex',alignItems:'center',justifyContent:'center',fontSize:'1.25rem',marginBottom:'1rem'}}>{s.i}</div>
+            <div style={{fontSize:'.75rem',textTransform:'uppercase',letterSpacing:'.06em',color:'var(--text-3)',fontWeight:600,marginBottom:'.5rem'}}>{s.l}</div>
+            <div style={{fontFamily:'Syne',fontSize:'1.5rem',fontWeight:800}}>{s.v}</div>
           </div>
         ))}
       </div>
-
       <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'1rem'}}>
         <div className="card">
           <div className="card-header"><div className="card-title">Listing Breakdown</div></div>
           <div className="card-body">
             <div style={{display:'flex',gap:'1rem',marginBottom:'1.5rem'}}>
-              {[
-                { label:'Free', count: freeListings, color:'var(--success)', bg:'var(--success-bg)' },
-                { label:'Paid', count: paidListings, color:'var(--info)', bg:'var(--info-bg)' },
-              ].map(b=>(
-                <div key={b.label} style={{flex:1,background:b.bg,borderRadius:'10px',padding:'1rem',textAlign:'center'}}>
-                  <div style={{fontSize:'1.5rem',fontWeight:800,fontFamily:'Syne',color:b.color}}>{b.count}</div>
-                  <div style={{fontSize:'0.75rem',fontWeight:600,color:b.color}}>{b.label} listings</div>
+              {[{l:'Free',n:free,c:'var(--success)',bg:'var(--success-bg)'},{l:'Paid',n:paid,c:'var(--info)',bg:'var(--info-bg)'}].map(b=>(
+                <div key={b.l} style={{flex:1,background:b.bg,borderRadius:'10px',padding:'1rem',textAlign:'center'}}>
+                  <div style={{fontSize:'1.5rem',fontWeight:800,fontFamily:'Syne',color:b.c}}>{b.n}</div>
+                  <div style={{fontSize:'.75rem',fontWeight:600,color:b.c}}>{b.l} listings</div>
                 </div>
               ))}
             </div>
-            <div style={{fontSize:'0.8rem',color:'var(--text-2)',marginBottom:'0.5rem'}}>Free tier usage</div>
-            <div className="progress-bar">
-              <div className="progress-fill" style={{width:`${Math.min(100, ((seller?.listings_count||0)/FREE_LISTINGS)*100)}%`, background: (seller?.listings_count||0)>=FREE_LISTINGS ? 'var(--danger)':'var(--brand)'}}></div>
-            </div>
-            <div style={{display:'flex',justifyContent:'space-between',fontSize:'0.75rem',color:'var(--text-3)',marginTop:'4px'}}>
-              <span>{seller?.listings_count||0} used</span>
-              <span>{FREE_LISTINGS} total free</span>
-            </div>
+            <div style={{fontSize:'.8rem',color:'var(--text-2)',marginBottom:'.5rem'}}>Free tier usage</div>
+            <div className="progress-bar"><div className="progress-fill" style={{width:Math.min(100,((seller?.listings_count||0)/FREE_LISTINGS)*100)+'%',background:(seller?.listings_count||0)>=FREE_LISTINGS?'var(--danger)':'var(--brand)'}}></div></div>
+            <div style={{display:'flex',justifyContent:'space-between',fontSize:'.75rem',color:'var(--text-3)',marginTop:'4px'}}><span>{seller?.listings_count||0} used</span><span>{FREE_LISTINGS} total free</span></div>
           </div>
         </div>
-
         <div className="card">
           <div className="card-header"><div className="card-title">Products by Category</div></div>
           <div className="card-body">
-            {byCategory.length === 0 ? (
-              <div style={{textAlign:'center',color:'var(--text-3)',padding:'2rem'}}>No products yet</div>
-            ) : byCategory.map(c=>(
-              <div key={c.value} style={{marginBottom:'0.75rem'}}>
-                <div style={{display:'flex',justifyContent:'space-between',fontSize:'0.8rem',marginBottom:'4px'}}>
-                  <span>{c.icon} {c.label}</span>
-                  <span style={{fontWeight:700}}>{c.count}</span>
-                </div>
-                <div className="progress-bar">
-                  <div className="progress-fill" style={{width:`${(c.count/products.length)*100}%`}}></div>
-                </div>
+            {byC.length===0?<div style={{textAlign:'center',color:'var(--text-3)',padding:'2rem'}}>No products yet</div>
+            :byC.map(c=>(
+              <div key={c.value} style={{marginBottom:'.75rem'}}>
+                <div style={{display:'flex',justifyContent:'space-between',fontSize:'.8rem',marginBottom:'4px'}}><span>{c.icon} {c.label}</span><span style={{fontWeight:700}}>{c.count}</span></div>
+                <div className="progress-bar"><div className="progress-fill" style={{width:(c.count/products.length*100)+'%'}}></div></div>
               </div>
             ))}
           </div>
@@ -1217,68 +771,37 @@ function AnalyticsPage({ seller, products }) {
   );
 }
 
-// ─── SETTINGS ─────────────────────────────────────────────────────────────────
-
-function SettingsPage({ seller, onUpdate }) {
-  const [form, setForm] = useState({ ...seller });
-  const [loading, setLoading] = useState(false);
-  const [msg, setMsg] = useState(null);
-  const [pwdForm, setPwdForm] = useState({ current:'', new:'', confirm:'' });
-
+function SettingsPage({seller, onUpdate}) {
+  const [form,setForm]   = useState({...seller});
+  const [loading,setLoading] = useState(false);
+  const [msg,setMsg]     = useState(null);
+  const [pwd,setPwd]     = useState({new:'',confirm:''});
   const set = (k,v) => setForm(p=>({...p,[k]:v}));
 
   async function saveProfile(e) {
-    e.preventDefault();
-    setLoading(true); setMsg(null);
-    try {
-      const { data, error } = await sb.from('bx_sellers').update({
-        store_name: form.store_name,
-        owner_name: form.owner_name,
-        phone: form.phone,
-        city: form.city,
-        category: form.category,
-        description: form.description,
-      }).eq('id', seller.id).select().single();
-      if (error) throw error;
-      onUpdate(data);
-      setMsg({ type:'success', text:'Profile updated successfully!' });
-    } catch(e) {
-      setMsg({ type:'danger', text: e.message });
-    } finally { setLoading(false); }
+    e.preventDefault(); setLoading(true); setMsg(null);
+    const {data,error} = await sb.from('bx_sellers').update({store_name:form.store_name,owner_name:form.owner_name,phone:form.phone,city:form.city,category:form.category,description:form.description}).eq('id',seller.id).select().single();
+    if(error) setMsg({type:'danger',text:error.message});
+    else { onUpdate(data); setMsg({type:'success',text:'Profile updated!'}); }
+    setLoading(false);
   }
 
   async function changePassword(e) {
     e.preventDefault();
-    if (hashPassword(pwdForm.current) !== seller.password_hash) {
-      setMsg({type:'danger', text:'Current password is incorrect.'});
-      return;
-    }
-    if (pwdForm.new !== pwdForm.confirm) {
-      setMsg({type:'danger', text:'New passwords do not match.'});
-      return;
-    }
-    if (pwdForm.new.length < 6) {
-      setMsg({type:'danger', text:'Password must be at least 6 characters.'});
-      return;
-    }
+    if(pwd.new!==pwd.confirm){setMsg({type:'danger',text:'Passwords do not match.'});return;}
+    if(pwd.new.length<6){setMsg({type:'danger',text:'Min. 6 characters.'});return;}
     setLoading(true);
-    try {
-      await sb.from('bx_sellers').update({ password_hash: hashPassword(pwdForm.new) }).eq('id', seller.id);
-      setMsg({type:'success', text:'Password changed!'});
-      setPwdForm({current:'',new:'',confirm:''});
-    } catch(e) {
-      setMsg({type:'danger', text:e.message});
-    } finally { setLoading(false); }
+    // SECURE: Supabase Auth handles bcrypt hashing
+    const {error} = await sb.auth.updateUser({password:pwd.new});
+    if(error) setMsg({type:'danger',text:error.message});
+    else { setMsg({type:'success',text:'Password updated securely!'}); setPwd({new:'',confirm:''}); }
+    setLoading(false);
   }
 
   return (
     <div className="page">
-      <div className="page-header">
-        <div className="page-title">Settings</div>
-        <div className="page-subtitle">Manage your store and account preferences</div>
-      </div>
-      {msg && <Alert type={msg.type} onClose={()=>setMsg(null)}>{msg.text}</Alert>}
-
+      <div className="page-header"><div className="page-title">Settings</div><div className="page-subtitle">Manage your store and account</div></div>
+      {msg&&<Alert type={msg.type} onClose={()=>setMsg(null)}>{msg.text}</Alert>}
       <div style={{display:'grid',gridTemplateColumns:'2fr 1fr',gap:'1.5rem'}}>
         <div>
           <div className="card" style={{marginBottom:'1.5rem'}}>
@@ -1286,95 +809,60 @@ function SettingsPage({ seller, onUpdate }) {
             <div className="card-body">
               <form onSubmit={saveProfile}>
                 <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Store Name *</label>
-                    <input className="form-input" value={form.store_name||''} onChange={e=>set('store_name',e.target.value)} required />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Owner Name *</label>
-                    <input className="form-input" value={form.owner_name||''} onChange={e=>set('owner_name',e.target.value)} required />
-                  </div>
+                  <div className="form-group"><label className="form-label">Store Name *</label><input className="form-input" value={form.store_name||''} onChange={e=>set('store_name',e.target.value)} required /></div>
+                  <div className="form-group"><label className="form-label">Owner Name *</label><input className="form-input" value={form.owner_name||''} onChange={e=>set('owner_name',e.target.value)} required /></div>
                 </div>
                 <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">Phone / WhatsApp</label>
-                    <input className="form-input" placeholder="+92 300 0000000" value={form.phone||''} onChange={e=>set('phone',e.target.value)} />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">City</label>
-                    <input className="form-input" placeholder="Karachi" value={form.city||''} onChange={e=>set('city',e.target.value)} />
-                  </div>
+                  <div className="form-group"><label className="form-label">Phone</label><input className="form-input" placeholder="+92 300 0000000" value={form.phone||''} onChange={e=>set('phone',e.target.value)} /></div>
+                  <div className="form-group"><label className="form-label">City</label><input className="form-input" placeholder="Karachi" value={form.city||''} onChange={e=>set('city',e.target.value)} /></div>
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Primary Category</label>
+                  <label className="form-label">Category</label>
                   <select className="form-input form-select" value={form.category||''} onChange={e=>set('category',e.target.value)}>
-                    <option value="">Select category…</option>
-                    {CATEGORIES.map(c=><option key={c.value} value={c.value}>{c.icon} {c.label}</option>)}
+                    <option value="">Select…</option>
+                    {CATS.map(c=><option key={c.value} value={c.value}>{c.icon} {c.label}</option>)}
                   </select>
                 </div>
-                <div className="form-group">
-                  <label className="form-label">Store Description</label>
-                  <textarea className="form-input form-textarea" rows={3} value={form.description||''} onChange={e=>set('description',e.target.value)} />
-                </div>
-                <button className="btn btn-primary" type="submit" disabled={loading}>
-                  {loading ? <Spinner /> : 'Save Changes'}
-                </button>
+                <div className="form-group"><label className="form-label">Description</label><textarea className="form-input form-textarea" rows={3} value={form.description||''} onChange={e=>set('description',e.target.value)} /></div>
+                <button className="btn btn-primary" type="submit" disabled={loading}>{loading?<Spinner/>:'Save Changes'}</button>
               </form>
             </div>
           </div>
-
           <div className="card">
             <div className="card-header"><div className="card-title">Change Password</div></div>
             <div className="card-body">
+              <Alert type="success">🔒 Secured with bcrypt via Supabase Auth — never stored as plain text</Alert>
               <form onSubmit={changePassword}>
-                <div className="form-group">
-                  <label className="form-label">Current Password</label>
-                  <input className="form-input" type="password" value={pwdForm.current} onChange={e=>setPwdForm(p=>({...p,current:e.target.value}))} required />
-                </div>
                 <div className="form-row">
-                  <div className="form-group">
-                    <label className="form-label">New Password</label>
-                    <input className="form-input" type="password" value={pwdForm.new} onChange={e=>setPwdForm(p=>({...p,new:e.target.value}))} required />
-                  </div>
-                  <div className="form-group">
-                    <label className="form-label">Confirm New</label>
-                    <input className="form-input" type="password" value={pwdForm.confirm} onChange={e=>setPwdForm(p=>({...p,confirm:e.target.value}))} required />
-                  </div>
+                  <div className="form-group"><label className="form-label">New Password</label><input className="form-input" type="password" placeholder="Min. 6 chars" value={pwd.new} onChange={e=>setPwd(p=>({...p,new:e.target.value}))} required /></div>
+                  <div className="form-group"><label className="form-label">Confirm</label><input className="form-input" type="password" placeholder="Repeat" value={pwd.confirm} onChange={e=>setPwd(p=>({...p,confirm:e.target.value}))} required /></div>
                 </div>
-                <button className="btn btn-secondary" type="submit" disabled={loading}>Update Password</button>
+                <button className="btn btn-secondary" type="submit" disabled={loading}>{loading?<Spinner dark/>:'Update Password'}</button>
               </form>
             </div>
           </div>
         </div>
-
         <div>
           <div className="card" style={{marginBottom:'1rem'}}>
             <div className="card-header"><div className="card-title">Account Info</div></div>
-            <div className="card-body" style={{fontSize:'0.85rem',lineHeight:'2'}}>
-              <div style={{color:'var(--text-3)'}}>Email</div>
-              <div style={{fontWeight:600,marginBottom:'0.75rem'}}>{seller.email}</div>
-              <div style={{color:'var(--text-3)'}}>Seller ID</div>
-              <div style={{fontWeight:600,fontFamily:'monospace',fontSize:'0.7rem',wordBreak:'break-all',marginBottom:'0.75rem'}}>{seller.id}</div>
-              <div style={{color:'var(--text-3)'}}>Member Since</div>
-              <div style={{fontWeight:600}}>{new Date(seller.created_at).toLocaleDateString('en-PK',{dateStyle:'long'})}</div>
+            <div className="card-body" style={{fontSize:'.85rem',lineHeight:2}}>
+              <div style={{color:'var(--text-3)'}}>Email</div><div style={{fontWeight:600,marginBottom:'.75rem'}}>{seller.email}</div>
+              <div style={{color:'var(--text-3)'}}>Seller ID</div><div style={{fontWeight:600,fontFamily:'monospace',fontSize:'.7rem',wordBreak:'break-all',marginBottom:'.75rem'}}>{seller.id}</div>
+              <div style={{color:'var(--text-3)'}}>Member Since</div><div style={{fontWeight:600}}>{new Date(seller.created_at).toLocaleDateString('en-PK',{dateStyle:'long'})}</div>
+              <div style={{marginTop:'.75rem',padding:'.75rem',background:'var(--success-bg)',borderRadius:'8px',border:'1px solid #BBF7D0',fontSize:'.8rem',color:'var(--success)'}}>🔒 Password: bcrypt hashed</div>
             </div>
           </div>
-
           <div className="card">
             <div className="card-header"><div className="card-title">Listing Plan</div></div>
-            <div className="card-body">
-              <div style={{textAlign:'center',padding:'0.5rem 0'}}>
-                <div style={{fontSize:'2rem',marginBottom:'0.5rem'}}>🎁</div>
-                <div style={{fontFamily:'Syne',fontWeight:700,fontSize:'1.1rem',marginBottom:'0.25rem'}}>Free Tier</div>
-                <div style={{fontSize:'0.8rem',color:'var(--text-3)',marginBottom:'1rem'}}>{FREE_LISTINGS} listings included</div>
-                <div className="progress-bar" style={{marginBottom:'0.5rem'}}>
-                  <div className="progress-fill" style={{width:`${Math.min(100,((seller?.listings_count||0)/FREE_LISTINGS)*100)}%`,background:(seller?.listings_count||0)>=FREE_LISTINGS?'var(--danger)':'var(--brand)'}}></div>
-                </div>
-                <div style={{fontSize:'0.75rem',color:'var(--text-3)'}}>{seller?.listings_count||0} / {FREE_LISTINGS} used</div>
-                <div style={{marginTop:'1rem',background:'var(--surface)',borderRadius:'8px',padding:'0.75rem',fontSize:'0.8rem'}}>
-                  <div style={{fontWeight:600,marginBottom:'0.25rem'}}>Need more listings?</div>
-                  <div style={{color:'var(--text-3)'}}>Rs. {PAID_PRICE} per additional listing</div>
-                </div>
+            <div className="card-body" style={{textAlign:'center'}}>
+              <div style={{fontSize:'2rem',marginBottom:'.5rem'}}>🎁</div>
+              <div style={{fontFamily:'Syne',fontWeight:700,fontSize:'1.1rem',marginBottom:'.25rem'}}>Free Tier</div>
+              <div style={{fontSize:'.8rem',color:'var(--text-3)',marginBottom:'1rem'}}>{FREE_LISTINGS} listings included</div>
+              <div className="progress-bar" style={{marginBottom:'.5rem'}}><div className="progress-fill" style={{width:Math.min(100,((seller?.listings_count||0)/FREE_LISTINGS)*100)+'%'}}></div></div>
+              <div style={{fontSize:'.75rem',color:'var(--text-3)'}}>{seller?.listings_count||0} / {FREE_LISTINGS} used</div>
+              <div style={{marginTop:'1rem',background:'var(--surface)',borderRadius:'8px',padding:'.75rem',fontSize:'.8rem'}}>
+                <div style={{fontWeight:600,marginBottom:'.25rem'}}>Need more?</div>
+                <div style={{color:'var(--text-3)'}}>Rs. {PAID_PRICE} per listing</div>
               </div>
             </div>
           </div>
@@ -1384,104 +872,105 @@ function SettingsPage({ seller, onUpdate }) {
   );
 }
 
-// ─── MAIN APP ─────────────────────────────────────────────────────────────────
+function OrdersPage() {
+  return (
+    <div className="page">
+      <div className="page-header"><div className="page-title">Orders</div><div className="page-subtitle">Customer orders will appear here</div></div>
+      <div className="card"><div className="empty-state"><div className="empty-icon">🛍️</div><div className="empty-title">No orders yet</div><div className="empty-desc">When customers place orders, they'll appear here.</div></div></div>
+    </div>
+  );
+}
 
 function App() {
-  const [screen, setScreen] = useState('login'); // login | register | app
-  const [seller, setSeller] = useState(null);
-  const [activeTab, setActiveTab] = useState('dashboard');
-  const [products, setProducts] = useState([]);
-  const [loadingProducts, setLoadingProducts] = useState(false);
-  const [editProduct, setEditProduct] = useState(null);
+  const [screen,setScreen]     = useState('loading');
+  const [seller,setSeller]     = useState(null);
+  const [activeTab,setActiveTab] = useState('dashboard');
+  const [products,setProducts] = useState([]);
+  const [editProduct,setEditProduct] = useState(null);
 
-  useEffect(() => {
-    const saved = localStorage.getItem('bx_seller');
-    if (saved) { setSeller(JSON.parse(saved)); setScreen('app'); }
-  }, []);
+  useEffect(()=>{
+    (async()=>{
+      const {data:{session}} = await sb.auth.getSession();
+      if (session) {
+        const {data:s} = await sb.from('bx_sellers').select('*').eq('auth_id',session.user.id).single();
+        if (s) { setSeller(s); setScreen('app'); } else setScreen('login');
+      } else setScreen('login');
+    })();
+    sb.auth.onAuthStateChange(async(event,session)=>{
+      if (event==='PASSWORD_RECOVERY') setScreen('forgot');
+      if (event==='SIGNED_OUT') { setSeller(null); setScreen('login'); }
+    });
+  },[]);
 
-  useEffect(() => {
-    if (seller) fetchProducts();
-  }, [seller]);
+  useEffect(()=>{ if(seller) fetchProducts(); },[seller]);
 
   async function fetchProducts() {
-    setLoadingProducts(true);
-    try {
-      const { data } = await sb.from('bx_products').select('*').eq('seller_id', seller.id).order('created_at', {ascending:false});
-      setProducts(data || []);
-    } catch(e) { console.error(e); }
-    finally { setLoadingProducts(false); }
+    const {data} = await sb.from('bx_products').select('*').eq('seller_id',seller.id).order('created_at',{ascending:false});
+    setProducts(data||[]);
   }
 
-  function handleLogin(data) {
-    setSeller(data);
-    localStorage.setItem('bx_seller', JSON.stringify(data));
+  function handleLogin(s) {
+    setSeller(s);
+    localStorage.setItem('bx_seller',JSON.stringify(s));
     setScreen('app');
   }
 
-  function handleLogout() {
+  async function handleLogout() {
+    await sb.auth.signOut();
     localStorage.removeItem('bx_seller');
-    setSeller(null);
-    setProducts([]);
-    setScreen('login');
+    setSeller(null); setProducts([]); setScreen('login');
   }
 
   function handleProductAdded(product, isEdit) {
-    if (isEdit) {
-      setProducts(ps => ps.map(p => p.id===product.id ? product : p));
-    } else {
-      setProducts(ps => [product, ...ps]);
-      const updated = { ...seller, listings_count: (seller.listings_count||0)+1 };
-      setSeller(updated);
-      localStorage.setItem('bx_seller', JSON.stringify(updated));
+    if (isEdit) { setProducts(ps=>ps.map(p=>p.id===product.id?product:p)); }
+    else {
+      setProducts(ps=>[product,...ps]);
+      const u = {...seller,listings_count:(seller.listings_count||0)+1};
+      setSeller(u); localStorage.setItem('bx_seller',JSON.stringify(u));
     }
     if (editProduct) { setEditProduct(null); setActiveTab('products'); }
   }
 
-  function handleSellerUpdate(updated) {
-    setSeller(updated);
-    localStorage.setItem('bx_seller', JSON.stringify(updated));
-  }
-
   function handleDeleteProduct(id) {
-    setProducts(ps => ps.filter(p=>p.id!==id));
-    const updated = { ...seller, listings_count: Math.max(0,(seller.listings_count||0)-1) };
-    setSeller(updated);
-    localStorage.setItem('bx_seller', JSON.stringify(updated));
+    setProducts(ps=>ps.filter(p=>p.id!==id));
+    const u = {...seller,listings_count:Math.max(0,(seller.listings_count||0)-1)};
+    setSeller(u); localStorage.setItem('bx_seller',JSON.stringify(u));
   }
 
-  function handleEdit(product) {
-    setEditProduct(product);
-    setActiveTab('add-product');
-  }
-
-  if (screen === 'login') return <LoginPage onLogin={handleLogin} onGoRegister={()=>setScreen('register')} />;
-  if (screen === 'register') return <RegisterPage onSuccess={handleLogin} onGoLogin={()=>setScreen('login')} />;
+  if (screen==='loading') return (
+    <div style={{display:'flex',alignItems:'center',justifyContent:'center',minHeight:'100vh',flexDirection:'column',gap:'1rem'}}>
+      <div style={{width:'40px',height:'40px',border:'3px solid var(--border)',borderTopColor:'var(--brand)',borderRadius:'50%',animation:'spin .7s linear infinite'}}></div>
+      <div style={{color:'var(--text-3)',fontSize:'.875rem'}}>Loading BazaarX Seller Portal…</div>
+    </div>
+  );
+  if (screen==='login')    return <LoginPage onLogin={handleLogin} onGoRegister={()=>setScreen('register')} onForgot={()=>setScreen('forgot')} />;
+  if (screen==='register') return <RegisterPage onSuccess={handleLogin} onGoLogin={()=>setScreen('login')} />;
+  if (screen==='forgot')   return <ForgotPage onBack={()=>setScreen('login')} />;
 
   return (
     <div className="app-shell">
       <Sidebar seller={seller} activeTab={activeTab} onTab={tab=>{setActiveTab(tab);setEditProduct(null);}} onLogout={handleLogout} />
       <div className="main-content">
         <div className="topbar">
-          <div className="topbar-title">
-            {activeTab==='dashboard' && '📊 Dashboard'}
-            {activeTab==='products' && '📦 My Products'}
-            {activeTab==='add-product' && (editProduct ? '✏️ Edit Product' : '➕ Add Product')}
-            {activeTab==='orders' && '🛍️ Orders'}
-            {activeTab==='analytics' && '📈 Analytics'}
-            {activeTab==='settings' && '⚙️ Settings'}
+          <div style={{fontFamily:'Syne',fontWeight:700,fontSize:'1rem'}}>
+            {activeTab==='dashboard'&&'📊 Dashboard'}
+            {activeTab==='products'&&'📦 My Products'}
+            {activeTab==='add-product'&&(editProduct?'✏️ Edit Product':'➕ Add Product')}
+            {activeTab==='orders'&&'🛍️ Orders'}
+            {activeTab==='analytics'&&'📈 Analytics'}
+            {activeTab==='settings'&&'⚙️ Settings'}
           </div>
-          <div style={{display:'flex',alignItems:'center',gap:'0.75rem'}}>
-            <div className="plan-chip">Free Plan</div>
-            <div style={{fontSize:'0.8rem',color:'var(--text-2)'}}>{seller?.store_name}</div>
+          <div style={{display:'flex',alignItems:'center',gap:'.75rem'}}>
+            <div className="plan-chip">🔒 Secure Auth</div>
+            <div style={{fontSize:'.8rem',color:'var(--text-2)'}}>{seller?.store_name}</div>
           </div>
         </div>
-
-        {activeTab==='dashboard' && <Dashboard seller={seller} products={products} onTab={setActiveTab} />}
-        {activeTab==='products' && <ProductsPage products={products} onEdit={handleEdit} onDelete={handleDeleteProduct} onRefresh={fetchProducts} />}
+        {activeTab==='dashboard'   && <Dashboard seller={seller} products={products} onTab={setActiveTab} />}
+        {activeTab==='products'    && <ProductsPage products={products} onEdit={p=>{setEditProduct(p);setActiveTab('add-product');}} onDelete={handleDeleteProduct} onRefresh={fetchProducts} />}
         {activeTab==='add-product' && <AddProductPage seller={seller} onProductAdded={handleProductAdded} editProduct={editProduct} onCancelEdit={()=>{setEditProduct(null);setActiveTab('products');}} />}
-        {activeTab==='orders' && <OrdersPage />}
-        {activeTab==='analytics' && <AnalyticsPage seller={seller} products={products} />}
-        {activeTab==='settings' && <SettingsPage seller={seller} onUpdate={handleSellerUpdate} />}
+        {activeTab==='orders'      && <OrdersPage />}
+        {activeTab==='analytics'   && <AnalyticsPage seller={seller} products={products} />}
+        {activeTab==='settings'    && <SettingsPage seller={seller} onUpdate={s=>{setSeller(s);localStorage.setItem('bx_seller',JSON.stringify(s));}} />}
       </div>
     </div>
   );
