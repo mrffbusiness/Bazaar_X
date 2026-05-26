@@ -1,0 +1,57 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#0f3460"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f57224"/>
+      <stop offset="100%" style="stop-color:#e84040"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- Decorative circles -->
+  <circle cx="1050" cy="100" r="280" fill="rgba(245,114,36,0.06)"/>
+  <circle cx="150" cy="530" r="200" fill="rgba(232,64,64,0.05)"/>
+  <circle cx="900" cy="500" r="150" fill="rgba(255,255,255,0.03)"/>
+
+  <!-- Orange accent bar -->
+  <rect x="80" y="200" width="6" height="120" fill="url(#accent)" rx="3"/>
+
+  <!-- BazaarX Logo text -->
+  <text x="108" y="180" font-family="Arial Black, sans-serif" font-size="52" font-weight="900" fill="#ffffff">BazaarX</text>
+  <text x="110" y="210" font-family="Arial, sans-serif" font-size="16" font-weight="400" fill="rgba(255,255,255,0.4)" letter-spacing="4">PAKISTAN</text>
+
+  <!-- Main headline -->
+  <text x="108" y="285" font-family="Arial Black, sans-serif" font-size="58" font-weight="900" fill="#ffffff">Pakistan's Smartest</text>
+  <text x="108" y="355" font-family="Arial Black, sans-serif" font-size="58" font-weight="900" fill="#f57224">Online Shopping</text>
+
+  <!-- Subtext -->
+  <text x="108" y="410" font-family="Arial, sans-serif" font-size="24" fill="rgba(255,255,255,0.6)">Mobiles · Laptops · Fashion · Electronics &amp; More</text>
+
+  <!-- Feature pills -->
+  <rect x="108" y="440" width="180" height="40" rx="20" fill="rgba(245,114,36,0.2)" stroke="#f57224" stroke-width="1"/>
+  <text x="198" y="465" font-family="Arial, sans-serif" font-size="15" fill="#f57224" text-anchor="middle" font-weight="600">🚚 Free Delivery</text>
+
+  <rect x="304" y="440" width="180" height="40" rx="20" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+  <text x="394" y="465" font-family="Arial, sans-serif" font-size="15" fill="rgba(255,255,255,0.8)" text-anchor="middle" font-weight="600">↩ Easy Returns</text>
+
+  <rect x="500" y="440" width="180" height="40" rx="20" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
+  <text x="590" y="465" font-family="Arial, sans-serif" font-size="15" fill="rgba(255,255,255,0.8)" text-anchor="middle" font-weight="600">🔒 Secure Pay</text>
+
+  <!-- URL -->
+  <text x="108" y="560" font-family="Arial, sans-serif" font-size="18" fill="rgba(255,255,255,0.35)">mrffbusiness.github.io/Bazaar_X</text>
+
+  <!-- Right side product emojis decorative -->
+  <text x="820" y="280" font-size="90" font-family="Arial">📱</text>
+  <text x="960" y="280" font-size="90" font-family="Arial">💻</text>
+  <text x="890" y="400" font-size="90" font-family="Arial">👗</text>
+  <text x="760" y="400" font-size="72" font-family="Arial">🔌</text>
+  <text x="1020" y="400" font-size="72" font-family="Arial">🏠</text>
+
+  <!-- Bottom orange bar -->
+  <rect x="0" y="610" width="1200" height="20" fill="url(#accent)"/>
+</svg>
